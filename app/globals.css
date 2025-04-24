@@ -1,0 +1,250 @@
+@import "tailwindcss";
+@config "../tailwind.config.ts";
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 270 50% 60%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 270 50% 60%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 270 30% 50%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 25%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 270 30% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-border {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(147, 51, 234, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(147, 51, 234, 0.4);
+  }
+}
+
+.animate-pulse-border {
+  animation: pulse-border 2s infinite;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-in-out;
+}
+
+.tab-active {
+  min-width: 180px;
+  max-width: 250px;
+  transition: all 0.2s ease-in-out;
+}
+
+.tab-item {
+  min-width: 150px;
+  max-width: 200px;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Hide scrollbar but allow scrolling */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
+/* Add these styles for button hover effects with muted purple */
+.btn-hover-effect {
+  transition: background-color 0.2s ease;
+}
+
+.btn-hover-effect:hover {
+  background-color: hsl(var(--accent) / 0.1);
+}
+
+.btn-hover-effect:active {
+  background-color: hsl(var(--accent) / 0.2);
+}
+
+/* Ensure consistent button styling in light and dark modes */
+.btn-hover-effect svg,
+button[variant="outline"] svg,
+button[variant="ghost"] svg {
+  color: currentColor;
+}
+
+/* Fix for theme toggle button in light mode */
+.dark .dark\:scale-0 {
+  transform: scale(0);
+}
+
+.dark .dark\:scale-100 {
+  transform: scale(1);
+}
+
+.dark .dark\:-rotate-90 {
+  transform: rotate(-90deg);
+}
+
+.dark .dark\:rotate-0 {
+  transform: rotate(0deg);
+}
+
+/* Add this for text wrapping in bingo cells */
+.bingo-cell {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0.25rem;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+/* Adjust font size based on content length */
+.bingo-cell.text-sm {
+  font-size: 0.875rem; /* 14px */
+}
+
+.bingo-cell.text-xs {
+  font-size: 0.75rem; /* 12px */
+}
+
+/* Fix for dark mode button text */
+.dark .bg-accent,
+.dark [class*="bg-accent"] {
+  color: white;
+}
+
+/* Ensure all accent buttons have white text */
+.bg-accent,
+[class*="bg-accent"] {
+  color: white;
+}
+
+/* Fix for light mode button icons and text */
+button[variant="outline"],
+button[variant="ghost"],
+.btn-hover-effect {
+  color: hsl(var(--foreground));
+}
+
+/* Ensure accent buttons maintain white text */
+.bg-accent button,
+button.bg-accent,
+.bg-accent {
+  color: white !important;
+}
+
+/* Tab item styles */
+.tab-item {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.tab-item span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Tabs container - hide scrollbar */
+.tabs-container {
+  overflow-x: scroll;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.tabs-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* Animation for slide-in from right */
+@keyframes slide-in-from-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-in {
+  animation-duration: 150ms;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  animation-fill-mode: forwards;
+}
+
+.slide-in-from-right {
+  animation-name: slide-in-from-right;
+}
+
+/* Fix dropdown text colors in light mode */
+.light [data-radix-select-item],
+.light [data-radix-dropdown-menu-item] {
+  color: hsl(var(--foreground));
+}
+
+/* Ensure dropdown items are visible in both modes */
+[data-radix-select-item][data-highlighted],
+[data-radix-dropdown-menu-item][data-highlighted] {
+  background-color: hsl(var(--accent) / 0.1);
+  color: hsl(var(--accent));
+}
