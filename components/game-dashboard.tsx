@@ -15,6 +15,7 @@ import {
   Pause,
   Maximize,
   Minimize,
+  Home,
 } from "lucide-react"
 import { ModeToggle } from "@/components/mode-toggle"
 import GameBoard from "@/components/game-board"
@@ -36,6 +37,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import AuthDialog from "@/components/auth-dialog"
+import Link from "next/link"
 
 export default function GameDashboard() {
   const { games, activeGameId, setActiveGameId, createGame, removeGame, updateGame } = useGame()
@@ -185,6 +187,11 @@ export default function GameDashboard() {
             <h1 className="text-2xl font-bold">Synergy Squares</h1>
           </div>
           <div className="flex items-center space-x-2">
+            <Link href="/">
+              <Button variant="outline" size="icon" className="btn-hover-effect" title="Back to home">
+                <Home className="w-5 h-5" />
+              </Button>
+            </Link>
             <ModeToggle />
             <Button
               variant="outline"

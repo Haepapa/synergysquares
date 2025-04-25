@@ -180,6 +180,12 @@ button[variant="ghost"] svg {
   color: white;
 }
 
+/* Fix for light mode button text */
+.light .bg-accent,
+[class*="bg-accent"] {
+  color: hsl(var(--foreground));
+}
+
 /* Fix for light mode button icons and text */
 button[variant="outline"],
 button[variant="ghost"],

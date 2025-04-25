@@ -1,40 +1,38 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import type { Metadata } from "next"
 import { ThemeProvider } from "@/components/theme-provider"
 import IntroductionScreen from "@/components/introduction-screen"
-import GameDashboard from "@/components/game-dashboard"
 import { AuthProvider } from "@/context/auth-context"
 import { GameProvider } from "@/context/game-context"
-import { toast } from "sonner"
+
+export const metadata: Metadata = {
+  title: "Synergy Squares - The Ultimate Bingo Game for Teams and Events",
+  description:
+    "Create custom bingo games for meetings, team building, events, and more. Play online with colleagues and friends in real-time.",
+  keywords: [
+    "bingo game",
+    "team building",
+    "meeting bingo",
+    "virtual bingo",
+    "custom bingo",
+    "online bingo",
+    "multiplayer bingo",
+  ],
+  openGraph: {
+    title: "Synergy Squares - The Ultimate Bingo Game for Teams and Events",
+    description:
+      "Create custom bingo games for meetings, team building, events, and more. Play online with colleagues and friends in real-time.",
+    type: "website",
+    url: "https://synergysquares.com",
+  },
+}
 
 export default function Home() {
-  const [hasStarted, setHasStarted] = useState(false)
-  const router = useRouter()
-
-  // Check if user has previously started the app
-  useEffect(() => {
-    const hasStartedBefore = localStorage.getItem("bingo-has-started")
-    if (hasStartedBefore === "true") {
-      setHasStarted(true)
-    }
-  }, [])
-
-  const handleStart = () => {
-    localStorage.setItem("bingo-has-started", "true")
-    setHasStarted(true)
-    toast.success("Welcome to Synergy Squares!", {
-      description: "Create a new game or join an existing one to get started.",
-    })
-  }
-
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <AuthProvider>
         <GameProvider>
           <main className="min-h-screen bg-background">
-            {!hasStarted ? <IntroductionScreen onStart={handleStart} /> : <GameDashboard />}
+            <IntroductionScreen />
           </main>
         </GameProvider>
       </AuthProvider>
