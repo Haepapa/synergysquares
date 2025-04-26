@@ -1,8 +1,10 @@
-import type { Game, Player } from "@/types/game"
+import type { Game, Player } from "@/types/game";
 // When integrating with Appwrite, uncomment these imports
-// import { account, databases, storage, functions } from './appwrite-config';
-// import { COLLECTIONS, BUCKETS, FUNCTIONS } from './appwrite-config';
-// import { Query } from 'appwrite';
+import { account } from "./appwrite-config";
+// import { account, databases, storage, functions } from "./appwrite-config";
+// import { COLLECTIONS, BUCKETS, FUNCTIONS } from "./appwrite-config";
+// import { Query, ID } from "appwrite";
+import { ID } from "appwrite";
 
 // ===== Authentication Services =====
 
@@ -12,26 +14,32 @@ export const authService = {
    */
   createAccount: async (email: string, password: string, name: string) => {
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    return {
-      id: `user_${Date.now()}`,
-      name,
-      email,
-    }
+    // await new Promise((resolve) => setTimeout(resolve, 500));
+    // return {
+    //   id: `user_${Date.now()}`,
+    //   name,
+    //   email,
+    // };
 
     // APPWRITE INTEGRATION:
-    // try {
-    //   const newAccount = await account.create('unique()', email, password, name);
-    //   await account.createEmailSession(email, password);
-    //   return {
-    //     id: newAccount.$id,
-    //     name: newAccount.name,
-    //     email: newAccount.email,
-    //   };
-    // } catch (error) {
-    //   console.error("Account creation failed:", error);
-    //   throw new Error("Failed to create account.");
-    // }
+    try {
+      const newAccount = await account.create(
+        ID.unique(),
+        email,
+        password,
+        name
+      );
+      await account.createEmailPasswordSession(email, password);
+      console.log("Account created:", newAccount);
+      return {
+        id: newAccount.$id,
+        name: newAccount.name,
+        email: newAccount.email,
+      };
+    } catch (error) {
+      console.error("Account creation failed:", error);
+      throw new Error("Failed to create account.");
+    }
   },
 
   /**
@@ -39,26 +47,27 @@ export const authService = {
    */
   login: async (email: string, password: string) => {
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    return {
-      id: `user_${Date.now()}`,
-      name: email.split("@")[0],
-      email,
-    }
+    // await new Promise((resolve) => setTimeout(resolve, 500));
+    // return {
+    //   id: `user_${Date.now()}`,
+    //   name: email.split("@")[0],
+    //   email,
+    // };
 
     // APPWRITE INTEGRATION:
-    // try {
-    //   await account.createEmailSession(email, password);
-    //   const user = await account.get();
-    //   return {
-    //     id: user.$id,
-    //     name: user.name,
-    //     email: user.email,
-    //   };
-    // } catch (error) {
-    //   console.error("Login failed:", error);
-    //   throw new Error("Login failed. Please check your credentials.");
-    // }
+    try {
+      await account.createEmailPasswordSession(email, password);
+      const user = await account.get();
+      console.log("Account logged in:", user);
+      return {
+        id: user.$id,
+        name: user.name,
+        email: user.email,
+      };
+    } catch (error) {
+      console.error("Login failed:", error);
+      throw new Error("Login failed. Please check your credentials.");
+    }
   },
 
   /**
@@ -66,16 +75,16 @@ export const authService = {
    */
   logout: async () => {
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 500))
-
+    // await new Promise((resolve) => setTimeout(resolve, 500));
     // APPWRITE INTEGRATION:
-    // try {
-    //   await account.deleteSession('current');
-    //   return true;
-    // } catch (error) {
-    //   console.error("Logout failed:", error);
-    //   throw new Error("Failed to logout.");
-    // }
+    try {
+      await account.deleteSession("current");
+      console.log("Account logged out");
+      return true;
+    } catch (error) {
+      console.error("Logout failed:", error);
+      throw new Error("Failed to logout.");
+    }
   },
 
   /**
@@ -83,22 +92,23 @@ export const authService = {
    */
   getCurrentUser: async () => {
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    const storedUser = localStorage.getItem("bingo-user")
-    return storedUser ? JSON.parse(storedUser) : null
+    // await new Promise((resolve) => setTimeout(resolve, 500));
+    // const storedUser = localStorage.getItem("bingo-user");
+    // return storedUser ? JSON.parse(storedUser) : null;
 
     // APPWRITE INTEGRATION:
-    // try {
-    //   const user = await account.get();
-    //   return {
-    //     id: user.$id,
-    //     name: user.name,
-    //     email: user.email,
-    //   };
-    // } catch (error) {
-    //   console.error("Failed to get current user:", error);
-    //   return null;
-    // }
+    try {
+      const user = await account.get();
+      console.log("Current user:", user);
+      return {
+        id: user.$id,
+        name: user.name,
+        email: user.email,
+      };
+    } catch (error) {
+      console.error("Failed to get current user:", error);
+      return null;
+    }
   },
 
   /**
@@ -106,30 +116,31 @@ export const authService = {
    */
   updateProfile: async (userId: string, data: { name?: string }) => {
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    const storedUser = localStorage.getItem("bingo-user")
-    if (!storedUser) return null
+    // await new Promise((resolve) => setTimeout(resolve, 500));
+    // const storedUser = localStorage.getItem("bingo-user");
+    // if (!storedUser) return null;
 
-    const user = JSON.parse(storedUser)
-    const updatedUser = { ...user, ...data }
-    localStorage.setItem("bingo-user", JSON.stringify(updatedUser))
-    return updatedUser
+    // const user = JSON.parse(storedUser);
+    // const updatedUser = { ...user, ...data };
+    // localStorage.setItem("bingo-user", JSON.stringify(updatedUser));
+    // return updatedUser;
 
     // APPWRITE INTEGRATION:
-    // try {
-    //   if (data.name) {
-    //     await account.updateName(data.name);
-    //   }
-    //   const updatedUser = await account.get();
-    //   return {
-    //     id: updatedUser.$id,
-    //     name: updatedUser.name,
-    //     email: updatedUser.email,
-    //   };
-    // } catch (error) {
-    //   console.error("Profile update failed:", error);
-    //   throw new Error("Failed to update profile.");
-    // }
+    try {
+      if (data.name) {
+        await account.updateName(data.name);
+      }
+      const updatedUser = await account.get();
+      console.log("Account updated:", updatedUser);
+      return {
+        id: updatedUser.$id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+      };
+    } catch (error) {
+      console.error("Profile update failed:", error);
+      throw new Error("Failed to update profile.");
+    }
   },
 
   /**
@@ -137,59 +148,62 @@ export const authService = {
    */
   deleteAccount: async () => {
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    localStorage.removeItem("bingo-user")
+    // await new Promise((resolve) => setTimeout(resolve, 500));
+    // localStorage.removeItem("bingo-user");
 
     // APPWRITE INTEGRATION:
-    // try {
-    //   await account.delete();
-    //   return true;
-    // } catch (error) {
-    //   console.error("Account deletion failed:", error);
-    //   throw new Error("Failed to delete account.");
-    // }
+    try {
+      const user = await account.get();
+      const result = await account.deleteIdentity(
+        user.$id // identityId
+      );
+      return true;
+    } catch (error) {
+      console.error("Account deletion failed:", error);
+      throw new Error("Failed to delete account.");
+    }
   },
-}
+};
 
 // ===== Game Services =====
 
 const getWinPatterns = (boardSize: number): number[][] => {
-  const patterns: number[][] = []
+  const patterns: number[][] = [];
 
   // Rows
   for (let i = 0; i < boardSize; i++) {
-    const row: number[] = []
+    const row: number[] = [];
     for (let j = 0; j < boardSize; j++) {
-      row.push(i * boardSize + j)
+      row.push(i * boardSize + j);
     }
-    patterns.push(row)
+    patterns.push(row);
   }
 
   // Columns
   for (let j = 0; j < boardSize; j++) {
-    const col: number[] = []
+    const col: number[] = [];
     for (let i = 0; i < boardSize; i++) {
-      col.push(i * boardSize + j)
+      col.push(i * boardSize + j);
     }
-    patterns.push(col)
+    patterns.push(col);
   }
 
   // Diagonal (top-left to bottom-right)
-  const diag1: number[] = []
+  const diag1: number[] = [];
   for (let i = 0; i < boardSize; i++) {
-    diag1.push(i * boardSize + i)
+    diag1.push(i * boardSize + i);
   }
-  patterns.push(diag1)
+  patterns.push(diag1);
 
   // Diagonal (top-right to bottom-left)
-  const diag2: number[] = []
+  const diag2: number[] = [];
   for (let i = 0; i < boardSize; i++) {
-    diag2.push(i * boardSize + (boardSize - 1 - i))
+    diag2.push(i * boardSize + (boardSize - 1 - i));
   }
-  patterns.push(diag2)
+  patterns.push(diag2);
 
-  return patterns
-}
+  return patterns;
+};
 
 export const gameService = {
   /**
@@ -197,8 +211,8 @@ export const gameService = {
    */
   createGame: async (userId: string, gameData: Partial<Game>) => {
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    const id = `game_${Date.now()}`
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    const id = `game_${Date.now()}`;
     const newGame: Game = {
       id,
       name: gameData.name || "New Bingo Game",
@@ -217,15 +231,15 @@ export const gameService = {
           hasBingo: false,
         },
       ],
-    }
+    };
 
     // Save to localStorage for demo
-    const storedGames = localStorage.getItem("bingo-games")
-    const games = storedGames ? JSON.parse(storedGames) : []
-    games.push(newGame)
-    localStorage.setItem("bingo-games", JSON.stringify(games))
+    const storedGames = localStorage.getItem("bingo-games");
+    const games = storedGames ? JSON.parse(storedGames) : [];
+    games.push(newGame);
+    localStorage.setItem("bingo-games", JSON.stringify(games));
 
-    return newGame
+    return newGame;
 
     // APPWRITE INTEGRATION:
     // try {
@@ -262,9 +276,9 @@ export const gameService = {
    */
   getUserGames: async (userId: string) => {
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    const storedGames = localStorage.getItem("bingo-games")
-    return storedGames ? JSON.parse(storedGames) : []
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    const storedGames = localStorage.getItem("bingo-games");
+    return storedGames ? JSON.parse(storedGames) : [];
 
     // APPWRITE INTEGRATION:
     // try {
@@ -284,10 +298,10 @@ export const gameService = {
    */
   getGameById: async (gameId: string) => {
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    const storedGames = localStorage.getItem("bingo-games")
-    const games = storedGames ? JSON.parse(storedGames) : []
-    return games.find((game: Game) => game.id === gameId) || null
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    const storedGames = localStorage.getItem("bingo-games");
+    const games = storedGames ? JSON.parse(storedGames) : [];
+    return games.find((game: Game) => game.id === gameId) || null;
 
     // APPWRITE INTEGRATION:
     // try {
@@ -307,10 +321,10 @@ export const gameService = {
    */
   getGameByToken: async (token: string) => {
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    const storedGames = localStorage.getItem("bingo-games")
-    const games = storedGames ? JSON.parse(storedGames) : []
-    return games.find((game: Game) => game.token === token) || null
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    const storedGames = localStorage.getItem("bingo-games");
+    const games = storedGames ? JSON.parse(storedGames) : [];
+    return games.find((game: Game) => game.token === token) || null;
 
     // APPWRITE INTEGRATION:
     // try {
@@ -334,20 +348,20 @@ export const gameService = {
    */
   updateGame: async (gameId: string, gameData: Partial<Game>) => {
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    const storedGames = localStorage.getItem("bingo-games")
-    const games = storedGames ? JSON.parse(storedGames) : []
-    const gameIndex = games.findIndex((game: Game) => game.id === gameId)
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    const storedGames = localStorage.getItem("bingo-games");
+    const games = storedGames ? JSON.parse(storedGames) : [];
+    const gameIndex = games.findIndex((game: Game) => game.id === gameId);
 
     if (gameIndex === -1) {
-      throw new Error("Game not found")
+      throw new Error("Game not found");
     }
 
-    const updatedGame = { ...games[gameIndex], ...gameData }
-    games[gameIndex] = updatedGame
-    localStorage.setItem("bingo-games", JSON.stringify(games))
+    const updatedGame = { ...games[gameIndex], ...gameData };
+    games[gameIndex] = updatedGame;
+    localStorage.setItem("bingo-games", JSON.stringify(games));
 
-    return updatedGame
+    return updatedGame;
 
     // APPWRITE INTEGRATION:
     // try {
@@ -371,11 +385,11 @@ export const gameService = {
    */
   deleteGame: async (gameId: string) => {
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    const storedGames = localStorage.getItem("bingo-games")
-    const games = storedGames ? JSON.parse(storedGames) : []
-    const updatedGames = games.filter((game: Game) => game.id !== gameId)
-    localStorage.setItem("bingo-games", JSON.stringify(updatedGames))
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    const storedGames = localStorage.getItem("bingo-games");
+    const games = storedGames ? JSON.parse(storedGames) : [];
+    const updatedGames = games.filter((game: Game) => game.id !== gameId);
+    localStorage.setItem("bingo-games", JSON.stringify(updatedGames));
 
     // APPWRITE INTEGRATION:
     // try {
@@ -395,22 +409,22 @@ export const gameService = {
    */
   joinGame: async (token: string, player: Player) => {
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    const storedGames = localStorage.getItem("bingo-games")
-    const games = storedGames ? JSON.parse(storedGames) : []
-    const gameIndex = games.findIndex((game: Game) => game.token === token)
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    const storedGames = localStorage.getItem("bingo-games");
+    const games = storedGames ? JSON.parse(storedGames) : [];
+    const gameIndex = games.findIndex((game: Game) => game.token === token);
 
     if (gameIndex === -1) {
-      throw new Error("Game not found")
+      throw new Error("Game not found");
     }
 
-    const game = games[gameIndex]
-    const updatedPlayers = [...(game.players || []), player]
-    const updatedGame = { ...game, players: updatedPlayers }
-    games[gameIndex] = updatedGame
-    localStorage.setItem("bingo-games", JSON.stringify(games))
+    const game = games[gameIndex];
+    const updatedPlayers = [...(game.players || []), player];
+    const updatedGame = { ...game, players: updatedPlayers };
+    games[gameIndex] = updatedGame;
+    localStorage.setItem("bingo-games", JSON.stringify(games));
 
-    return updatedGame
+    return updatedGame;
 
     // APPWRITE INTEGRATION:
     // try {
@@ -436,28 +450,32 @@ export const gameService = {
   /**
    * Check if a player has won
    */
-  checkWinner: async (gameId: string, playerId: string, markedCells: number[]) => {
+  checkWinner: async (
+    gameId: string,
+    playerId: string,
+    markedCells: number[]
+  ) => {
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    const storedGames = localStorage.getItem("bingo-games")
-    const games = storedGames ? JSON.parse(storedGames) : []
-    const game = games.find((g: Game) => g.id === gameId)
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    const storedGames = localStorage.getItem("bingo-games");
+    const games = storedGames ? JSON.parse(storedGames) : [];
+    const game = games.find((g: Game) => g.id === gameId);
 
     if (!game) {
-      throw new Error("Game not found")
+      throw new Error("Game not found");
     }
 
     // Check for winning patterns
-    const winPatterns = getWinPatterns(game.boardSize)
-    const winningPatterns: number[][] = []
+    const winPatterns = getWinPatterns(game.boardSize);
+    const winningPatterns: number[][] = [];
 
     for (const pattern of winPatterns) {
       if (pattern.every((cellIndex) => markedCells.includes(cellIndex))) {
-        winningPatterns.push(pattern)
+        winningPatterns.push(pattern);
       }
     }
 
-    return { hasWon: winningPatterns.length > 0, winningPatterns }
+    return { hasWon: winningPatterns.length > 0, winningPatterns };
 
     // APPWRITE INTEGRATION:
     // try {
@@ -480,7 +498,7 @@ export const gameService = {
     //   throw new Error("Failed to check winner.");
     // }
   },
-}
+};
 
 // ===== Preset Services =====
 
@@ -490,9 +508,9 @@ export const presetService = {
    */
   getPresets: async () => {
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    const storedPresets = localStorage.getItem("bingo-custom-presets")
-    return storedPresets ? JSON.parse(storedPresets) : {}
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    const storedPresets = localStorage.getItem("bingo-custom-presets");
+    return storedPresets ? JSON.parse(storedPresets) : {};
 
     // APPWRITE INTEGRATION:
     // try {
@@ -518,13 +536,13 @@ export const presetService = {
    */
   savePreset: async (userId: string, name: string, items: string[]) => {
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    const storedPresets = localStorage.getItem("bingo-custom-presets")
-    const presets = storedPresets ? JSON.parse(storedPresets) : {}
-    presets[name] = items
-    localStorage.setItem("bingo-custom-presets", JSON.stringify(presets))
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    const storedPresets = localStorage.getItem("bingo-custom-presets");
+    const presets = storedPresets ? JSON.parse(storedPresets) : {};
+    presets[name] = items;
+    localStorage.setItem("bingo-custom-presets", JSON.stringify(presets));
 
-    return { name, items }
+    return { name, items };
 
     // APPWRITE INTEGRATION:
     // try {
@@ -554,11 +572,11 @@ export const presetService = {
    */
   deletePreset: async (name: string) => {
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    const storedPresets = localStorage.getItem("bingo-custom-presets")
-    const presets = storedPresets ? JSON.parse(storedPresets) : {}
-    delete presets[name]
-    localStorage.setItem("bingo-custom-presets", JSON.stringify(presets))
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    const storedPresets = localStorage.getItem("bingo-custom-presets");
+    const presets = storedPresets ? JSON.parse(storedPresets) : {};
+    delete presets[name];
+    localStorage.setItem("bingo-custom-presets", JSON.stringify(presets));
 
     // APPWRITE INTEGRATION:
     // try {
@@ -581,10 +599,10 @@ export const presetService = {
     //   throw new Error("Failed to delete preset.");
     // }
   },
-}
+};
 
 export default {
   auth: authService,
   game: gameService,
   preset: presetService,
-}
+};
