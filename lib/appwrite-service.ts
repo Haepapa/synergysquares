@@ -153,10 +153,12 @@ export const authService = {
 
     // APPWRITE INTEGRATION:
     try {
-      const user = await account.get();
-      const result = await account.deleteIdentity(
-        user.$id // identityId
-      );
+      // const user = await account.get();
+      // const result1 = await account.deleteIdentity(
+      //   user.$id // identityId
+      // );
+      const result2 = await account.updateStatus();
+      console.log("Account removed:", result2);
       return true;
     } catch (error) {
       console.error("Account deletion failed:", error);

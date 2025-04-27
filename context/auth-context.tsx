@@ -253,10 +253,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const deleteAccount = () => {
     // In a real app, this would make an API call to delete the user's account
-    setUser(null);
+    // setUser(null);
 
     // Clear any user-related data from localStorage
-    localStorage.removeItem("bingo-user");
+    // localStorage.removeItem("bingo-user");
 
     // We'll keep the games for demo purposes, but in a real app you might want to delete those too
 
@@ -272,6 +272,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     //     console.error("Account deletion failed:", error);
     //     throw new Error("Failed to delete account.");
     //   });
+    authService
+      .deleteAccount()
+      .then(() => {
+        setUser(null);
+        toast({
+          title: "Account deleted",
+          description: "Your account has been deleted.",
+        });
+      })
+      .catch((error) => {
+        console.error("Account deletion failed:", error);
+        toast({
+          title: "Account deletion failed",
+          description: "Please try again.",
+          variant: "destructive",
+        });
+      });
   };
 
   return (
