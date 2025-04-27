@@ -56,53 +56,38 @@ export default function ContactPage() {
                 <ContactForm />
               </div>
               <div className="bg-accent/5 p-6 rounded-lg">
-                <h2 className="text-xl font-semibold mb-4">Get in Touch</h2>
+                <h2 className="text-xl font-semibold mb-4">Frequently Asked Questions</h2>
                 <div className="space-y-4">
                   <div>
-                    <h3 className="font-medium">Email</h3>
-                    <p className="text-muted-foreground">support@synergysquares.com</p>
+                    <h3 className="font-medium">How do I create a custom bingo game?</h3>
+                    <p className="text-muted-foreground">
+                      Sign in, click "Start Playing", then create a new game and customize it in the settings.
+                    </p>
                   </div>
                   <div>
-                    <h3 className="font-medium">Business Hours</h3>
-                    <p className="text-muted-foreground">Monday - Friday: 9am - 5pm EST</p>
+                    <h3 className="font-medium">Can I play with my team remotely?</h3>
+                    <p className="text-muted-foreground">
+                      Yes! Generate a game token in the settings and share it with your team members.
+                    </p>
                   </div>
                   <div>
-                    <h3 className="font-medium">Follow Us</h3>
-                    <div className="flex space-x-4 mt-2">
-                      <a href="#" className="text-accent hover:text-accent/80">
-                        Twitter
-                      </a>
-                      <a href="#" className="text-accent hover:text-accent/80">
-                        LinkedIn
-                      </a>
-                      <a href="#" className="text-accent hover:text-accent/80">
-                        Facebook
-                      </a>
-                    </div>
+                    <h3 className="font-medium">Is Synergy Squares free to use?</h3>
+                    <p className="text-muted-foreground">
+                      Yes, Synergy Squares is currently free to use with all core features available.
+                    </p>
                   </div>
-                </div>
-
-                <div className="mt-8">
-                  <h2 className="text-xl font-semibold mb-4">Frequently Asked Questions</h2>
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="font-medium">How do I create a custom bingo game?</h3>
-                      <p className="text-muted-foreground">
-                        Sign in, click "Start Playing", then create a new game and customize it in the settings.
-                      </p>
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Can I play with my team remotely?</h3>
-                      <p className="text-muted-foreground">
-                        Yes! Generate a game token in the settings and share it with your team members.
-                      </p>
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Is Synergy Squares free to use?</h3>
-                      <p className="text-muted-foreground">
-                        Yes, Synergy Squares is currently free to use with all core features available.
-                      </p>
-                    </div>
+                  <div>
+                    <h3 className="font-medium">How do I save my custom presets?</h3>
+                    <p className="text-muted-foreground">
+                      Create an account, then click "My Presets" in the game settings to create and manage your custom
+                      presets.
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="font-medium">Can I customize the board size?</h3>
+                    <p className="text-muted-foreground">
+                      Yes, you can choose from 3×3, 5×5, 7×7, or 9×9 board sizes in the game settings.
+                    </p>
                   </div>
                 </div>
               </div>

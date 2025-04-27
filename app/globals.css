@@ -195,7 +195,7 @@ button[variant="ghost"],
 
 .bg-accent button,
 button.bg-accent,
-\ .bg-accent/90 {
+.bg-accent\/90 {
   color: white !important;
 }
 
