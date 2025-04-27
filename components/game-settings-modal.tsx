@@ -34,7 +34,7 @@ export default function GameSettingsModal({ game, onClose }: GameSettingsModalPr
   const [customPresetName, setCustomPresetName] = useState("")
   const [savedPresets, setSavedPresets] = useState<Record<string, string[]>>({})
   const [gameToken, setGameToken] = useState(game.token || "")
-  const [isHost, setIsHost] = useState(game.isHost || true)
+  const [isHost, setIsHost] = useState<boolean>(game.isHost !== false)
   const [isJoining, setIsJoining] = useState(false)
   const [isValidToken, setIsValidToken] = useState(false)
   const [showPresetManager, setShowPresetManager] = useState(false)
@@ -310,87 +310,104 @@ export default function GameSettingsModal({ game, onClose }: GameSettingsModalPr
             </TabsContent>
 
             <TabsContent value="values" className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <Label htmlFor="preset">Content Presets</Label>
-                  {user && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setShowPresetManager(true)}
-                      className="flex items-center text-xs"
-                    >
-                      <Settings2 className="mr-1 h-3 w-3" />
-                      Manage Presets
-                    </Button>
-                  )}
-                </div>
-                <div className="flex space-x-2">
-                  <Select value={selectedPreset} onValueChange={handlePresetSelect}>
-                    <SelectTrigger className="flex-1">
-                      <SelectValue placeholder="Select a preset" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">None</SelectItem>
-                      {Object.keys(presetCategories).map((category) => (
-                        <SelectItem key={category} value={category}>
-                          {category}
-                        </SelectItem>
-                      ))}
-                      {Object.keys(savedPresets).map((preset) => (
-                        <SelectItem key={preset} value={preset}>
-                          {preset} (Custom)
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button onClick={handleGenerateRandomContent} className="bg-accent hover:bg-accent/90">
-                    Randomize
-                  </Button>
-                </div>
-              </div>
+              <div className="space-y-4">
+                {user && (
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <Label htmlFor="my-presets">My Presets</Label>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowPresetManager(true)}
+                        className="flex items-center text-xs"
+                      >
+                        <Settings2 className="mr-1 h-3 w-3" />
+                        My Presets
+                      </Button>
+                    </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="cell-content">Cell Content (one item per line)</Label>
-                <Textarea
-                  id="cell-content"
-                  value={cellContent}
-                  onChange={(e) => setCellContent(e.target.value)}
-                  placeholder="Enter content for each cell, one per line"
-                  className="min-h-[200px]"
-                />
-                <p className="text-xs text-muted-foreground">
-                  For odd-sized boards, a FREE space will be automatically added to the center.
-                </p>
-              </div>
+                    {/* Only show this dropdown if the user has custom presets */}
+                    {Object.keys(savedPresets).length > 0 ? (
+                      <Select
+                        value={selectedPreset}
+                        onValueChange={(value) => {
+                          setSelectedPreset(value)
+                          handlePresetSelect(value)
+                        }}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select one of your presets" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.keys(savedPresets).map((preset) => (
+                            <SelectItem key={preset} value={preset}>
+                              {preset}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/30">
+                        You haven't created any custom presets yet. Click "My Presets" to create one.
+                      </div>
+                    )}
+                  </div>
+                )}
 
-              {!user ? (
-                <div className="p-4 border rounded-md bg-muted/50">
-                  <h3 className="font-medium flex items-center">
-                    <FolderOpen className="mr-2 h-4 w-4 text-accent" />
-                    Save Custom Presets
-                  </h3>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    Log in to create and save your own custom presets for future games.
-                  </p>
-                </div>
-              ) : (
                 <div className="space-y-2">
-                  <Label htmlFor="custom-preset">Save as Custom Preset</Label>
+                  <Label htmlFor="default-presets">Default Presets</Label>
                   <div className="flex space-x-2">
-                    <Input
-                      id="custom-preset"
-                      value={customPresetName}
-                      onChange={(e) => setCustomPresetName(e.target.value)}
-                      placeholder="Custom preset name"
-                      className="flex-1"
-                    />
-                    <Button onClick={handleSavePreset} className="bg-accent hover:bg-accent/90">
-                      Save Preset
+                    <Select
+                      value={selectedPreset}
+                      onValueChange={(value) => {
+                        setSelectedPreset(value)
+                        handlePresetSelect(value)
+                      }}
+                    >
+                      <SelectTrigger className="flex-1">
+                        <SelectValue placeholder="Select a preset" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">None</SelectItem>
+                        {Object.keys(presetCategories).map((category) => (
+                          <SelectItem key={category} value={category}>
+                            {category}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button onClick={handleGenerateRandomContent} className="bg-accent hover:bg-accent/90">
+                      Randomize
                     </Button>
                   </div>
                 </div>
-              )}
+
+                <div className="space-y-2">
+                  <Label htmlFor="cell-content">Cell Content (one item per line)</Label>
+                  <Textarea
+                    id="cell-content"
+                    value={cellContent}
+                    onChange={(e) => setCellContent(e.target.value)}
+                    placeholder="Enter content for each cell, one per line"
+                    className="min-h-[200px]"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    For odd-sized boards, a FREE space will be automatically added to the center.
+                  </p>
+                </div>
+
+                {!user && (
+                  <div className="p-4 border rounded-md bg-muted/50">
+                    <h3 className="font-medium flex items-center">
+                      <FolderOpen className="mr-2 h-4 w-4 text-accent" />
+                      Custom Presets
+                    </h3>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      Log in to create and save your own custom presets for future games.
+                    </p>
+                  </div>
+                )}
+              </div>
             </TabsContent>
 
             <TabsContent value="multiplayer" className="space-y-4">

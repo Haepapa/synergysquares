@@ -262,15 +262,36 @@ export default function PresetManager({ open, onClose, onSelectPreset }: PresetM
       <Dialog open={open} onOpenChange={onClose}>
         <DialogContent className="sm:max-w-[700px]">
           <DialogHeader>
-            <DialogTitle>Manage Custom Presets</DialogTitle>
-            <DialogDescription>Create, edit, and manage your custom bingo presets.</DialogDescription>
+            <div className="flex justify-between items-center">
+              <div>
+                <DialogTitle>My Presets</DialogTitle>
+                <DialogDescription>Create, edit, and manage your custom bingo presets.</DialogDescription>
+              </div>
+              {onSelectPreset && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setPresetName("")
+                    setPresetContent("")
+                    setEditingPreset(null)
+                    setShowEditDialog(true)
+                  }}
+                  className="whitespace-nowrap"
+                >
+                  <Plus className="mr-2 h-4 w-4" /> New Preset
+                </Button>
+              )}
+            </div>
           </DialogHeader>
 
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-medium">Your Presets</h3>
-            <Button onClick={handleCreatePreset} className="bg-accent hover:bg-accent/90">
-              <Plus className="mr-2 h-4 w-4" /> Create New Preset
-            </Button>
+            {!onSelectPreset && (
+              <Button onClick={handleCreatePreset} className="bg-accent hover:bg-accent/90">
+                <Plus className="mr-2 h-4 w-4" /> Create New Preset
+              </Button>
+            )}
           </div>
 
           {loading ? (
