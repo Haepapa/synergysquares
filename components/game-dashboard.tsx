@@ -49,6 +49,7 @@ export default function GameDashboard() {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const tabsContainerRef = useRef<HTMLDivElement>(null)
   const [showAuthDialog, setShowAuthDialog] = useState(false)
+  const [authMode, setAuthMode] = useState<"login" | "signup">("login")
   const [showAccountMenu, setShowAccountMenu] = useState(false)
 
   // Create a default game if none exists
@@ -197,7 +198,14 @@ export default function GameDashboard() {
               variant="outline"
               size="icon"
               className="btn-hover-effect"
-              onClick={() => (user ? setShowAccountMenu(true) : setShowAuthDialog(true))}
+              onClick={() => {
+                if (user) {
+                  setShowAccountMenu(true)
+                } else {
+                  setAuthMode("login")
+                  setShowAuthDialog(true)
+                }
+              }}
               title={user ? "Account options" : "Login or sign up"}
             >
               <UserCircle className="w-5 h-5" />
@@ -452,7 +460,13 @@ export default function GameDashboard() {
         </div>
       )}
 
-      {showAuthDialog && <AuthDialog mode="login" onClose={() => setShowAuthDialog(false)} onModeChange={() => {}} />}
+      {showAuthDialog && (
+        <AuthDialog
+          mode={authMode}
+          onClose={() => setShowAuthDialog(false)}
+          onModeChange={(mode) => setAuthMode(mode)}
+        />
+      )}
     </div>
   )
 }
