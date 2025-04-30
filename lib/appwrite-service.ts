@@ -4,7 +4,7 @@ import { account } from "./appwrite-config";
 // import { account, databases, storage, functions } from "./appwrite-config";
 // import { COLLECTIONS, BUCKETS, FUNCTIONS } from "./appwrite-config";
 // import { Query, ID } from "appwrite";
-import { ID } from "appwrite";
+import { ID, AppwriteException } from "appwrite";
 
 // ===== Authentication Services =====
 
@@ -58,15 +58,16 @@ export const authService = {
     try {
       await account.createEmailPasswordSession(email, password);
       const user = await account.get();
-      console.log("Account logged in:", user);
+      console.log("From login: account logged in with user:", user);
       return {
         id: user.$id,
         name: user.name,
         email: user.email,
       };
     } catch (error) {
-      console.error("Login failed:", error);
-      throw new Error("Login failed. Please check your credentials.");
+      console.error("From login: login failed with:", error);
+      // throw new Error("Login failed. Please check your credentials.");
+      return null;
     }
   },
 
@@ -99,15 +100,27 @@ export const authService = {
     // APPWRITE INTEGRATION:
     try {
       const user = await account.get();
-      console.log("Current user:", user);
+      console.log("From getCurrentUser: current user is", user);
       return {
         id: user.$id,
         name: user.name,
         email: user.email,
       };
     } catch (error) {
-      console.error("Failed to get current user:", error);
-      return null;
+      if (
+        error instanceof Error &&
+        error instanceof AppwriteException &&
+        error.message === "User (role: guests) missing scope (account)"
+      ) {
+        console.log("From getCurrentUser: no logged in user");
+        return null;
+      } else {
+        console.error(
+          "From getCurrentUser: failed to get current user with:",
+          error
+        );
+        return null;
+      }
     }
   },
 

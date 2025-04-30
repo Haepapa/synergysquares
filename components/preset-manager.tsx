@@ -165,7 +165,8 @@ export default function PresetManager({ open, onClose, onSelectPreset }: PresetM
         setPresets(updatedPresets)
         savePresetsToLocalStorage(updatedPresets)
 
-        toast.success("Preset updated successfully")
+        // Remove this toast - not a key milestone
+        // toast.success("Preset updated successfully")
       } else {
         // Create new preset
         const newPreset: Preset = {
@@ -200,6 +201,7 @@ export default function PresetManager({ open, onClose, onSelectPreset }: PresetM
         setPresets(updatedPresets)
         savePresetsToLocalStorage(updatedPresets)
 
+        // Keep this toast as it's a new creation
         toast.success("Preset created successfully")
       }
 
@@ -230,7 +232,8 @@ export default function PresetManager({ open, onClose, onSelectPreset }: PresetM
       setPresets(updatedPresets)
       savePresetsToLocalStorage(updatedPresets)
 
-      toast.success("Preset deleted successfully")
+      // Remove this toast - not a key milestone
+      // toast.success("Preset deleted successfully")
       setPresetToDelete(null)
     } catch (error) {
       console.error("Failed to delete preset:", error)

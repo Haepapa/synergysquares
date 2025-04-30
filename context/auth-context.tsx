@@ -31,32 +31,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const { toast } = useToast();
 
-  // Load user from localStorage on initial render
+  // Check if user is logged in on initial render
   useEffect(() => {
-    // const storedUser = localStorage.getItem("bingo-user")
-    // if (storedUser) {
-    //   try {
-    //     setUser(JSON.parse(storedUser))
-    //   } catch (error) {
-    //     console.error("Failed to parse stored user:", error)
-    //   }
-    // }
-    // APPWRITE INTEGRATION:
-    // Replace the above with a check for an active session
-    // Example:
-    // account.get().then(
-    //   (response) => {
-    //     setUser({
-    //       id: response.$id,
-    //       name: response.name,
-    //       email: response.email,
-    //     });
-    //   },
-    //   (error) => {
-    //     console.error("No active session:", error);
-    //     setUser(null);
-    //   }
-    // );
     authService
       .getCurrentUser()
       .then((response) => {
@@ -76,48 +52,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
   }, []);
 
-  // Save user to localStorage whenever it changes
-  // useEffect(() => {
-  //   if (user) {
-  //     localStorage.setItem("bingo-user", JSON.stringify(user));
-  //   } else {
-  //     localStorage.removeItem("bingo-user");
-  //   }
-
-  // APPWRITE INTEGRATION:
-  // This effect is not needed with Appwrite as user data is stored server-side
-  // }, [user]);
-
   const login = async (email: string, password: string) => {
-    // Simulate API call
-    // await new Promise((resolve) => setTimeout(resolve, 500));
-
-    // For demo purposes, we'll just create a user with the provided email
-    // setUser({
-    //   id: `user_${Date.now()}`,
-    //   name: email.split("@")[0],
-    //   email,
-    // });
-
-    // APPWRITE INTEGRATION:
-    // Replace with Appwrite authentication
-    // Example:
-    // try {
-    //   const session = await account.createEmailSession(email, password);
-    //   const accountDetails = await account.get();
-    //   setUser({
-    //     id: accountDetails.$id,
-    //     name: accountDetails.name,
-    //     email: accountDetails.email,
-    //   });
-    // } catch (error) {
-    //   console.error("Login failed:", error);
-    //   throw new Error("Login failed. Please check your credentials.");
-    // }
     authService
       .login(email, password)
       .then((response) => {
-        if (response) {
+        if (response != undefined) {
           setUser({
             id: response.id,
             name: response.name,
@@ -127,8 +66,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             title: "Login successful",
             description: `Welcome back, ${response.name}!`,
           });
+          return {
+            id: response.id,
+            name: response.name,
+            email: response.email,
+          };
         } else {
           setUser(null);
+          toast({
+            title: "Login failed",
+            description: "Invalid email or password",
+          });
+          return null;
         }
       })
       .catch((error) => {
@@ -138,34 +87,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           description: "Please check your credentials.",
           variant: "destructive",
         });
+        setUser(null);
+        return null;
       });
   };
 
   const signup = async (email: string, password: string, name: string) => {
-    // Simulate API call
-    // await new Promise((resolve) => setTimeout(resolve, 500));
-
-    // setUser({
-    //   id: `user_${Date.now()}`,
-    //   name,
-    //   email,
-    // });
-
-    // APPWRITE INTEGRATION:
-    // Replace with Appwrite account creation
-    // Example:
-    // try {
-    //   const newAccount = await account.create('unique()', email, password, name);
-    //   await account.createEmailSession(email, password);
-    //   setUser({
-    //     id: newAccount.$id,
-    //     name: newAccount.name,
-    //     email: newAccount.email,
-    //   });
-    // } catch (error) {
-    //   console.error("Signup failed:", error);
-    //   throw new Error("Signup failed. Please try again.");
-    // }
     authService
       .createAccount(email, password, name)
       .then((response) => {
@@ -194,18 +121,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-    // setUser(null);
-
-    // APPWRITE INTEGRATION:
-    // Replace with Appwrite session deletion
-    // Example:
-    // account.deleteSession('current')
-    //   .then(() => {
-    //     setUser(null);
-    //   })
-    //   .catch((error) => {
-    //     console.error("Logout failed:", error);
-    //   });
     authService
       .logout()
       .then(() => {

@@ -109,6 +109,7 @@ export default function GameSettingsModal({ game, onClose }: GameSettingsModalPr
 
     updateGame(updatedGame)
     onClose()
+    // Remove the settings saved toast - not a key milestone
   }
 
   const handleJoinGame = async () => {

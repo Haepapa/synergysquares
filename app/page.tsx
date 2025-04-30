@@ -1,8 +1,8 @@
-import type { Metadata } from "next"
-import { ThemeProvider } from "@/components/theme-provider"
-import IntroductionScreen from "@/components/introduction-screen"
-import { AuthProvider } from "@/context/auth-context"
-import { GameProvider } from "@/context/game-context"
+import type { Metadata } from "next";
+import { ThemeProvider } from "@/components/theme-provider";
+import IntroductionScreen from "@/components/introduction-screen";
+import { AuthProvider } from "@/context/auth-context";
+import { GameProvider } from "@/context/game-context";
 
 export const metadata: Metadata = {
   title: "Synergy Squares - The Ultimate Bingo Game for Teams and Events",
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     type: "website",
     url: "https://synergysquares.com",
   },
-}
+};
 
 export default function Home() {
   return (
@@ -37,5 +37,5 @@ export default function Home() {
         </GameProvider>
       </AuthProvider>
     </ThemeProvider>
-  )
+  );
 }

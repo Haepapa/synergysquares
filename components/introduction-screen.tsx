@@ -35,9 +35,10 @@ export default function IntroductionScreen() {
   const handleStart = () => {
     localStorage.setItem("bingo-has-started", "true")
     router.push("/play")
-    toast.success("Welcome to Synergy Squares!", {
-      description: "Create a new game or join an existing one to get started.",
-    })
+    // Remove this toast - not needed as the UI change is obvious
+    // toast.success("Welcome to Synergy Squares!", {
+    //   description: "Create a new game or join an existing one to get started.",
+    // })
   }
 
   return (

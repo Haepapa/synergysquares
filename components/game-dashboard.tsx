@@ -65,9 +65,10 @@ export default function GameDashboard() {
     const newGameId = createGame()
     setActiveGameId(newGameId)
     setShowSettings(true)
-    toast.success("New game created", {
-      description: "Customize your game settings to get started.",
-    })
+    // Only show toast for first game creation
+    if (games.length === 0) {
+      toast.success("Welcome to your first game!")
+    }
   }
 
   const handleRemoveGame = (gameId: string) => {
@@ -78,9 +79,10 @@ export default function GameDashboard() {
     if (gameToRemove) {
       removeGame(gameToRemove)
       setGameToRemove(null)
-      toast.success("Game removed", {
-        description: "The game has been removed successfully.",
-      })
+      // Remove this toast notification
+      // toast.success("Game removed", {
+      //   description: "The game has been removed successfully.",
+      // })
     }
   }
 
@@ -107,19 +109,21 @@ export default function GameDashboard() {
         status: "playing",
         startTime: new Date().toISOString(),
       })
-      toast.success("Game started")
+      toast.success("Game started") // Keep this important milestone toast
     } else if (game.status === "playing") {
       updateGame({
         ...game,
         status: "paused",
       })
-      toast.info("Game paused")
+      // Remove pause toast - not a key milestone
+      // toast.info("Game paused")
     } else if (game.status === "paused") {
       updateGame({
         ...game,
         status: "playing",
       })
-      toast.success("Game resumed")
+      // Remove resume toast - not a key milestone
+      // toast.success("Game resumed")
     }
   }
 
@@ -451,7 +455,8 @@ export default function GameDashboard() {
               onClick={() => {
                 logout()
                 setShowAccountMenu(false)
-                toast.success("Logged out successfully")
+                // Simplify logout message
+                toast.success("Logged out")
               }}
             >
               Log out

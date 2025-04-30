@@ -1,71 +1,95 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useAuth } from "@/context/auth-context"
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useAuth } from "@/context/auth-context";
 // Ensure we're importing toast correctly
-import { toast } from "sonner"
-import { Apple } from "lucide-react"
+import { toast } from "sonner";
+import { Apple } from "lucide-react";
 
 interface AuthDialogProps {
-  mode: "login" | "signup"
-  onClose: () => void
-  onModeChange: (mode: "login" | "signup") => void
+  mode: "login" | "signup";
+  onClose: () => void;
+  onModeChange: (mode: "login" | "signup") => void;
 }
 
-export default function AuthDialog({ mode, onClose, onModeChange }: AuthDialogProps) {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [name, setName] = useState("")
-  const { login, signup } = useAuth()
+export default function AuthDialog({
+  mode,
+  onClose,
+  onModeChange,
+}: AuthDialogProps) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const { login, signup } = useAuth();
 
+  // Keep authentication toasts as they are important milestones
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     try {
       if (mode === "login") {
-        await login(email, password)
-        toast.success("Login successful", {
-          description: "Welcome back!",
-        })
+        login(email, password).then((resp) => {
+          console.log("Login response:", resp);
+          if (resp !== undefined) {
+            toast.success("Login successful", {
+              description: "Welcome back!",
+            });
+          } else {
+            toast.error("Login failed", {
+              description: "Invalid email or password",
+            });
+          }
+        });
       } else {
-        await signup(email, password, name)
+        await signup(email, password, name);
         toast.success("Account created", {
           description: "Your account has been created successfully.",
-        })
+        });
       }
-      onClose()
+      onClose();
     } catch (error) {
       toast.error("Authentication error", {
-        description: error instanceof Error ? error.message : "An error occurred",
-      })
+        description:
+          error instanceof Error ? error.message : "An error occurred",
+      });
     }
-  }
+  };
 
+  // Simplify social auth toast
   const handleSocialAuth = (provider: string) => {
-    toast.info("Social authentication", {
-      description: `${provider} authentication is not implemented in this demo.`,
-    })
-  }
+    toast.info(`${provider} authentication coming soon`);
+  };
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{mode === "login" ? "Login" : "Create an account"}</DialogTitle>
+          <DialogTitle>
+            {mode === "login" ? "Login" : "Create an account"}
+          </DialogTitle>
           <DialogDescription>
             {mode === "login"
               ? "Enter your credentials to access your account."
               : "Fill in the information below to create your account."}
           </DialogDescription>
         </DialogHeader>
-        <Tabs value={mode} onValueChange={(value) => onModeChange(value as "login" | "signup")}>
+        <Tabs
+          value={mode}
+          onValueChange={(value) => onModeChange(value as "login" | "signup")}
+        >
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="login">Login</TabsTrigger>
             <TabsTrigger value="signup">Sign Up</TabsTrigger>
@@ -93,7 +117,10 @@ export default function AuthDialog({ mode, onClose, onModeChange }: AuthDialogPr
                   required
                 />
               </div>
-              <Button type="submit" className="w-full bg-accent hover:bg-accent/90">
+              <Button
+                type="submit"
+                className="w-full bg-accent hover:bg-accent/90"
+              >
                 {mode === "login" ? "Login" : "Create Account"}
               </Button>
             </form>
@@ -131,7 +158,10 @@ export default function AuthDialog({ mode, onClose, onModeChange }: AuthDialogPr
                   required
                 />
               </div>
-              <Button type="submit" className="w-full bg-accent hover:bg-accent/90">
+              <Button
+                type="submit"
+                className="w-full bg-accent hover:bg-accent/90"
+              >
                 {mode === "login" ? "Login" : "Create Account"}
               </Button>
             </form>
@@ -143,7 +173,9 @@ export default function AuthDialog({ mode, onClose, onModeChange }: AuthDialogPr
             <span className="w-full border-t" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+            <span className="bg-background px-2 text-muted-foreground">
+              Or continue with
+            </span>
           </div>
         </div>
 
@@ -184,5 +216,5 @@ export default function AuthDialog({ mode, onClose, onModeChange }: AuthDialogPr
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
