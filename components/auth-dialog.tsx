@@ -18,6 +18,7 @@ import { useAuth } from "@/context/auth-context";
 // Ensure we're importing toast correctly
 import { toast } from "sonner";
 import { Apple } from "lucide-react";
+import { authService } from "@/lib/appwrite-service";
 
 interface AuthDialogProps {
   mode: "login" | "signup";
@@ -41,8 +42,8 @@ export default function AuthDialog({
 
     try {
       if (mode === "login") {
-        login(email, password).then((resp) => {
-          console.log("Login response:", resp);
+        await login(email, password).then((resp) => {
+          console.log("auth-dialog - Login response:", resp);
           if (resp !== undefined) {
             toast.success("Login successful", {
               description: "Welcome back!",

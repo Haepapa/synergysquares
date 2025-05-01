@@ -56,6 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     authService
       .login(email, password)
       .then((response) => {
+        console.log("auth-context - Login response:", response);
         if (response != undefined) {
           setUser({
             id: response.id,
