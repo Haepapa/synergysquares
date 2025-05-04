@@ -99,7 +99,6 @@ export const authService = {
     // APPWRITE INTEGRATION:
     try {
       const user = await account.get();
-      console.log("From getCurrentUser: current user is", user);
       return {
         id: user.$id,
         name: user.name,
