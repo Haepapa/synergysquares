@@ -18,7 +18,10 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (
+    email: string,
+    password: string
+  ) => Promise<{ id: string; name: string; email: string } | null>;
   signup: (email: string, password: string, name: string) => Promise<void>;
   logout: () => void;
   updateUser: (data: Partial<User>) => void;
@@ -53,44 +56,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    authService
-      .login(email, password)
-      .then((response) => {
-        console.log("auth-context - Login response:", response);
-        if (response != undefined) {
-          setUser({
-            id: response.id,
-            name: response.name,
-            email: response.email,
-          });
-          toast({
-            title: "Login successful",
-            description: `Welcome back, ${response.name}!`,
-          });
-          return {
-            id: response.id,
-            name: response.name,
-            email: response.email,
-          };
-        } else {
-          setUser(null);
-          toast({
-            title: "Login failed",
-            description: "Invalid email or password",
-          });
-          return null;
-        }
-      })
-      .catch((error) => {
-        console.error("Login failed:", error);
+    try {
+      const response = await authService.login(email, password); // Wait for authService.login to complete
+      if (response != undefined) {
+        setUser({
+          id: response.id,
+          name: response.name,
+          email: response.email,
+        });
+        toast({
+          title: "Login successful",
+          description: `Welcome back, ${response.name}!`,
+        });
+        return response; // Return the response to the caller
+      } else {
+        setUser(null);
         toast({
           title: "Login failed",
-          description: "Please check your credentials.",
-          variant: "destructive",
+          description: "Invalid email or password",
         });
-        setUser(null);
-        return null;
+        return null; // Explicitly return null if login fails
+      }
+    } catch (error) {
+      console.error("Login failed:", error);
+      toast({
+        title: "Login failed",
+        description: "Please check your credentials.",
+        variant: "destructive",
       });
+      setUser(null);
+      throw error; // Re-throw the error so the caller can handle it
+    }
   };
 
   const signup = async (email: string, password: string, name: string) => {

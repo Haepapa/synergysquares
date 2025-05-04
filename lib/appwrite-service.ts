@@ -58,7 +58,6 @@ export const authService = {
     try {
       await account.createEmailPasswordSession(email, password);
       const user = await account.get();
-      console.log("From login: account logged in with user:", user);
       return {
         id: user.$id,
         name: user.name,

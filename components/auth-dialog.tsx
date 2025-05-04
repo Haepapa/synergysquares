@@ -40,32 +40,25 @@ export default function AuthDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    try {
-      if (mode === "login") {
-        await login(email, password).then((resp) => {
-          console.log("auth-dialog - Login response:", resp);
-          if (resp !== undefined) {
-            toast.success("Login successful", {
-              description: "Welcome back!",
-            });
-          } else {
-            toast.error("Login failed", {
-              description: "Invalid email or password",
-            });
-          }
-        });
-      } else {
-        await signup(email, password, name);
-        toast.success("Account created", {
-          description: "Your account has been created successfully.",
+    if (mode === "login") {
+      try {
+        const resp = await login(email, password); // Properly await the login function
+        if (resp !== undefined) {
+          toast.success("Login successful", {
+            description: "Welcome back!",
+          });
+        } else {
+          toast.error("Login failed", {
+            description: "Invalid email or password",
+          });
+        }
+        onClose(); // Close the dialog only after login is complete
+      } catch (error) {
+        toast.error("Authentication error", {
+          description:
+            error instanceof Error ? error.message : "An error occurred",
         });
       }
-      onClose();
-    } catch (error) {
-      toast.error("Authentication error", {
-        description:
-          error instanceof Error ? error.message : "An error occurred",
-      });
     }
   };
 
