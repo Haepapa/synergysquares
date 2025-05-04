@@ -1,13 +1,20 @@
 import type { Game, Player } from "@/types/game";
 // When integrating with Appwrite, uncomment these imports
-import { account } from "./appwrite-config";
+import {
+  account,
+  databases,
+  databaseID,
+  collection01ID,
+} from "./appwrite-config";
 // import { account, databases, storage, functions } from "./appwrite-config";
 // import { COLLECTIONS, BUCKETS, FUNCTIONS } from "./appwrite-config";
 // import { Query, ID } from "appwrite";
 import { ID, AppwriteException } from "appwrite";
+import { ContactFormType } from "@/types/contact";
 
-// ===== Authentication Services =====
-
+//========================================================================================
+// Authentication Services
+//========================================================================================
 export const authService = {
   /**
    * Create a new user account
@@ -46,15 +53,6 @@ export const authService = {
    * Login with email and password
    */
   login: async (email: string, password: string) => {
-    // Simulate API call
-    // await new Promise((resolve) => setTimeout(resolve, 500));
-    // return {
-    //   id: `user_${Date.now()}`,
-    //   name: email.split("@")[0],
-    //   email,
-    // };
-
-    // APPWRITE INTEGRATION:
     try {
       await account.createEmailPasswordSession(email, password);
       const user = await account.get();
@@ -182,8 +180,9 @@ export const authService = {
   },
 };
 
-// ===== Game Services =====
-
+//========================================================================================
+// Game Services
+//========================================================================================
 const getWinPatterns = (boardSize: number): number[][] => {
   const patterns: number[][] = [];
 
@@ -517,8 +516,9 @@ export const gameService = {
   },
 };
 
-// ===== Preset Services =====
-
+//========================================================================================
+// Preset Services
+//========================================================================================
 export const presetService = {
   /**
    * Get all presets
@@ -618,8 +618,32 @@ export const presetService = {
   },
 };
 
+//========================================================================================
+// Contact Service
+//========================================================================================
+export const contactService = {
+  sameMessage: async (data: ContactFormType) => {
+    try {
+      await databases.createDocument(
+        databaseID, // databaseId
+        collection01ID, // collectionId
+        ID.unique(),
+        data
+      );
+      return true;
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
+  },
+};
+
+//========================================================================================
+// Esport
+//========================================================================================
 export default {
   auth: authService,
   game: gameService,
   preset: presetService,
+  contact: contactService,
 };
