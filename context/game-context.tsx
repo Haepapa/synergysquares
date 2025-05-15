@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import type { Game } from "@/types/game"
+import { useAuth } from "@/context/auth-context"
 import { generateBoardCells } from "@/lib/game-utils"
 
 interface GameContextType {
@@ -19,6 +20,7 @@ const GameContext = createContext<GameContextType | undefined>(undefined)
 export function GameProvider({ children }: { children: ReactNode }) {
   const [games, setGames] = useState<Game[]>([])
   const [activeGameId, setActiveGameId] = useState<string | null>(null)
+  const { user } = useAuth();
 
   // Load games from localStorage on initial render
   useEffect(() => {
@@ -51,13 +53,19 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
   // Save games to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem("bingo-games", JSON.stringify(games))
+    console.log("Saving games to localStorage:", games)
+    // localStorage.setItem("bingo-games", JSON.stringify(games))
+
+    console.log("User ID:", user?.id)
+    // TODO (me): Use this effect to save games to Appwrite
 
     // APPWRITE INTEGRATION:
     // This effect is not needed with Appwrite as game data is stored server-side
   }, [games])
 
   const createGame = () => {
+    // TODO (me): Add user id to game id
+    console.log("Creating new game")
     const id = `game_${Date.now()}`
     const boardSize = 5
     const newGame: Game = {
@@ -111,6 +119,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
   }
 
   const updateGame = (updatedGame: Game) => {
+    console.log("Updating game:", updatedGame)
     setGames((prevGames) => prevGames.map((game) => (game.id === updatedGame.id ? updatedGame : game)))
 
     // APPWRITE INTEGRATION:

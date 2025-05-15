@@ -65,10 +65,6 @@ export default function GameDashboard() {
     const newGameId = createGame()
     setActiveGameId(newGameId)
     setShowSettings(true)
-    // Only show toast for first game creation
-    if (games.length === 0) {
-      toast.success("Welcome to your first game!")
-    }
   }
 
   const handleRemoveGame = (gameId: string) => {

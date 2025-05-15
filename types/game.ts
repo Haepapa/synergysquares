@@ -24,3 +24,4 @@ export interface Game {
   isHost?: boolean
   players?: Player[]
 }
+// TODO (me): Add above types as collections/attributes in Appwrite. Include User ID
