@@ -7,3 +7,9 @@ SynergySquares is a customizable online Bingo game designed for meetings, town h
 This branch contains definitions for creating objects (e.g. Appwrite Databases, Collections etc).
 
 In the case of Appwrite resources this code will create them for local development purposes and can be used to create them in the Staging/Test environments. The migration tool will be used for deployment to Appwrite production.
+
+> NOTE: THis code assumes an Appwrite project has been created.
+
+# Objects
+
+## Databases
