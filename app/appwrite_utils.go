@@ -47,7 +47,7 @@ func CreateDatabase(name string) (*models.Database, error) {
 	return db, nil
 }
 func CreateCollection(dbId string, name string) (*models.Collection, error) {
-	// List all collections
+	// List all collections in database
 	collections, err := AppwriteDatabase.ListCollections(dbId)
 	if err != nil {
 		fmt.Println("Error listing collections:", err)
@@ -67,4 +67,50 @@ func CreateCollection(dbId string, name string) (*models.Collection, error) {
 	}
 	fmt.Println("Collection created with id:", col.Id)
 	return col, nil
+}
+
+func CreateAttribute(dbID string, colID string, att AttributeType) (error){
+	attributes, err := AppwriteDatabase.ListAttributes(dbID, colID)
+	if err != nil {
+		fmt.Println("Error listing attributes:", err)
+		return err
+	}
+	for _, attr := range attributes.Attributes {
+		if attrName, ok := attr["key"].(string); ok && attrName == att.Name {
+			fmt.Println("Attribute already exists with key:", attr["key"])
+			return nil
+		}
+	}
+	// Create an attribute
+	if att.Type == "string" {
+		newAtt, err := AppwriteDatabase.CreateStringAttribute(
+			dbID, 
+			colID, 
+			att.Name, 
+			att.Size, 
+			att.Required,
+			AppwriteDatabase.WithCreateStringAttributeDefault(att.Default),
+			AppwriteDatabase.WithCreateStringAttributeArray(att.Array),
+			AppwriteDatabase.WithCreateStringAttributeEncrypt(att.Encrypt),
+		)
+		if err != nil {
+			fmt.Println("Error creating attribute:", err)
+			return err
+		}
+		fmt.Println("Attribute created with key:", newAtt.Key)
+		return nil
+	}
+	return fmt.Errorf("unsupported attribute type: %s", att.Type)
+
+}
+
+type AttributeType struct {
+	Type string
+	Name string
+	Size int
+	Required bool
+	// Unique bool - not implemented in sdk (https://github.com/appwrite/sdk-for-go/blob/main/databases/databases.go)
+	Default string
+	Array bool
+	Encrypt bool
 }

@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/Haepapa/synergysquares/tree/resource-def/app"
-	"github.com/appwrite/sdk-for-go/id"
 )
 
 
@@ -18,29 +17,65 @@ func main() {
 	// Initialize Appwrite client
 	app.Utils()
 
-	// List all databases
-	databases, err := app.AppwriteDatabase.List()
-	if err != nil {
-		fmt.Println("Error listing databases:", err)
-		return
-	}
-	fmt.Println("Databases:")
-	for _, db := range databases.Databases {
-		fmt.Printf("ID: %s, Name: %s\n", db.Id, db.Name)
-	}
 	// Create a database
-	db, err := app.AppwriteDatabase.Create(id.Unique(), "synergysquares1")
+	db, err := app.CreateDatabase("synergysquares")
 	if err != nil {
 		fmt.Println("Error creating database:", err)
 		return
 	}
-	fmt.Println("Database created with id:", db.Id)
 
-	// Create a collection(s)
-	colContactUs, err := app.AppwriteDatabase.CreateCollection(db.Id, id.Unique(), "contactus")
+	// Create collection(s)
+	colContactUs, err := app.CreateCollection(db.Id, "contact_us")
 	if err != nil {
 		fmt.Println("Error creating collection:", err)
 		return
 	}
-	fmt.Println("Collection created with id:", colContactUs.Id)
+
+	// Create attributes in collection(s)
+	attVals := []app.AttributeType{
+		{
+		Type:        "string",
+		Name: 	     "name",
+		Size:        100,
+		Required:    false,
+		Default:     "",
+		Array:       false,
+		Encrypt:     false,
+		},
+		{
+		Type:        "email",
+		Name: 	     "email",
+		Size:        200,
+		Required:    false,
+		Default:     "",
+		Array:       false,
+		Encrypt:     false,
+		},
+		{
+		Type:        "string",
+		Name: 	     "subject",
+		Size:        200,
+		Required:    false,
+		Default:     "",
+		Array:       false,
+		Encrypt:     false,
+		},
+		{
+		Type:        "string",
+		Name: 	     "message",
+		Size:        5000,
+		Required:    false,
+		Default:     "",
+		Array:       false,
+		Encrypt:     false,
+		},
+	}
+	for _, att := range attVals {
+		err = app.CreateAttribute(db.Id, colContactUs.Id, att)
+		if err != nil {
+			fmt.Println("Error creating attribute:", err)
+			return
+		}
+	}
+
 }
