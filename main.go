@@ -1,9 +1,8 @@
 package main
 
 import (
-	"fmt"
-
 	"crypto/tls"
+	"log"
 	"net/http"
 
 	"github.com/Haepapa/synergysquares/tree/resource-def/app"
@@ -20,14 +19,14 @@ func main() {
 	// Create a database
 	db, err := app.CreateDatabase("synergysquares")
 	if err != nil {
-		fmt.Println("Error creating database:", err)
+		log.Println("Error creating database:", err)
 		return
 	}
 
 	// Create collection(s)
 	colContactUs, err := app.CreateCollection(db.Id, "contact_us")
 	if err != nil {
-		fmt.Println("Error creating collection:", err)
+		log.Println("Error creating collection:", err)
 		return
 	}
 
@@ -47,7 +46,7 @@ func main() {
 		Name: 	     "email",
 		Size:        200,
 		Required:    false,
-		Default:     "",
+		Default:     "email@email.com",
 		Array:       false,
 		Encrypt:     false,
 		},
@@ -73,7 +72,7 @@ func main() {
 	for _, att := range attVals {
 		err = app.CreateAttribute(db.Id, colContactUs.Id, att)
 		if err != nil {
-			fmt.Println("Error creating attribute:", err)
+			log.Println("Error creating attribute:", err)
 			return
 		}
 	}

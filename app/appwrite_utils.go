@@ -2,6 +2,7 @@ package app
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/appwrite/sdk-for-go/appwrite"
 	"github.com/appwrite/sdk-for-go/databases"
@@ -28,56 +29,56 @@ func CreateDatabase(name string) (*models.Database, error) {
 	// List all databases
 	databases, err := AppwriteDatabase.List()
 	if err != nil {
-		fmt.Println("Error listing databases:", err)
+		log.Println("Error listing databases:", err)
 		return nil, err
 	}
 	for _, db := range databases.Databases {
 		if db.Name == name {
-			fmt.Println("Database already exists with id:", db.Id)
+			log.Println("Database already exists with id:", db.Id)
 			return &db, nil
 		}
 	}
 	// Create a database
 	db, err := AppwriteDatabase.Create(id.Unique(), name)
 	if err != nil {
-		fmt.Println("Error creating database:", err)
+		log.Println("Error creating database:", err)
 		return nil, err
 	}
-	fmt.Println("Database created with id:", db.Id)
+	log.Println("Database created with id:", db.Id)
 	return db, nil
 }
 func CreateCollection(dbId string, name string) (*models.Collection, error) {
 	// List all collections in database
 	collections, err := AppwriteDatabase.ListCollections(dbId)
 	if err != nil {
-		fmt.Println("Error listing collections:", err)
+		log.Println("Error listing collections:", err)
 		return nil, err
 	}
 	for _, col := range collections.Collections {
 		if col.Name == name {
-			fmt.Println("Collection already exists with id:", col.Id)
+			log.Println("Collection already exists with id:", col.Id)
 			return &col, nil
 		}
 	}
 	// Create a collection
 	col, err := AppwriteDatabase.CreateCollection(dbId, id.Unique(), name)
 	if err != nil {
-		fmt.Println("Error creating collection:", err)
+		log.Println("Error creating collection:", err)
 		return nil, err
 	}
-	fmt.Println("Collection created with id:", col.Id)
+	log.Println("Collection created with id:", col.Id)
 	return col, nil
 }
 
 func CreateAttribute(dbID string, colID string, att AttributeType) (error){
 	attributes, err := AppwriteDatabase.ListAttributes(dbID, colID)
 	if err != nil {
-		fmt.Println("Error listing attributes:", err)
+		log.Println("Error listing attributes:", err)
 		return err
 	}
 	for _, attr := range attributes.Attributes {
 		if attrName, ok := attr["key"].(string); ok && attrName == att.Name {
-			fmt.Println("Attribute already exists with key:", attr["key"])
+			log.Println("Attribute already exists with key:", attr["key"])
 			return nil
 		}
 	}
@@ -94,14 +95,28 @@ func CreateAttribute(dbID string, colID string, att AttributeType) (error){
 			AppwriteDatabase.WithCreateStringAttributeEncrypt(att.Encrypt),
 		)
 		if err != nil {
-			fmt.Println("Error creating attribute:", err)
+			log.Println("error creating attribute:", err)
 			return err
 		}
-		fmt.Println("Attribute created with key:", newAtt.Key)
+		log.Println("attribute created with key:", newAtt.Key)
+		return nil
+	} else if att.Type == "email" {
+		newAtt, err := AppwriteDatabase.CreateEmailAttribute(
+			dbID,
+			colID,
+			att.Name,
+			att.Required,
+			AppwriteDatabase.WithCreateEmailAttributeDefault(att.Default),
+			AppwriteDatabase.WithCreateEmailAttributeArray(att.Array),
+		)
+		if err != nil {
+			log.Println("error creating attribute:", err)
+			return err
+		}
+		log.Println("attribute created with key:", newAtt.Key)
 		return nil
 	}
 	return fmt.Errorf("unsupported attribute type: %s", att.Type)
-
 }
 
 type AttributeType struct {
