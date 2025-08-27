@@ -5,7 +5,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Haepapa/synergysquares/tree/resource-def/app"
+	// "github.com/Haepapa/synergysquares/tree/resource-def/app"
+	app "github.com/Haepapa/appres"
 )
 
 
