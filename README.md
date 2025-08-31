@@ -35,3 +35,17 @@ If running from `wsl` you may need to add the below to your `hosts` file.
 ```bash
 echo "127.0.0.1 appwrite.localhost" | sudo tee -a /etc/hosts
 ```
+
+### Appwrite integration
+
+```mermaid
+sequenceDiagram
+	participant AC as appwrite-config
+	participant AS as appwrite-service
+    participant AX as auth-context
+    participant AD as Auth-dialog
+
+	AC->>AS: import configuration
+    AS->>AX: consume services
+    AX->>AD: use context
+```

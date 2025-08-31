@@ -43,7 +43,7 @@ export default function AuthDialog({
     if (mode === "login") {
       try {
         const resp = await login(email, password); // Properly await the login function
-        if (resp !== undefined) {
+        if (resp !== null) {
           toast.success("Login successful", {
             description: "Welcome back!",
           });
@@ -55,6 +55,26 @@ export default function AuthDialog({
         onClose(); // Close the dialog only after login is complete
       } catch (error) {
         toast.error("Authentication error", {
+          description:
+            error instanceof Error ? error.message : "An error occurred",
+        });
+      }
+    }
+    if (mode === "signup") {
+      try {
+        const resp = await signup(email, password, name); // Properly await the signup function
+        if (resp !== null) {
+          toast.success("Signup successful", {
+            description: "Welcome aboard!",
+          });
+        } else {
+          toast.error("Signup failed", {
+            description: "Please check your details and try again.",
+          });
+        }
+        onClose(); // Close the dialog only after signup is complete
+      } catch (error) {
+        toast.error("Signup error", {
           description:
             error instanceof Error ? error.message : "An error occurred",
         });

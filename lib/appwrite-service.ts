@@ -37,7 +37,7 @@ export const authService = {
         name
       );
       await account.createEmailPasswordSession(email, password);
-      console.log("Account created:", newAccount);
+      // console.log("Account created:", newAccount);
       return {
         id: newAccount.$id,
         name: newAccount.name,
