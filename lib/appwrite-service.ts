@@ -632,6 +632,7 @@ export const contactService = {
       );
       return true;
     } catch (error) {
+      console.error("Error from contactService.sameMessage");
       console.error(error);
       return false;
     }
