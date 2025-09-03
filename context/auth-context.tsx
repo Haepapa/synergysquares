@@ -140,10 +140,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const updateUser = (data: Partial<User>) => {
     if (!user) return;
 
-    setUser({
-      ...user,
-      ...data,
-    });
+    authService
+      .updateProfile(user.id, data)
+      .then(() => {
+        setUser({
+          ...user,
+          ...data,
+        });
+      })
+      .catch((error) => {
+        console.error("Update failed:", error);
+        throw new Error("Failed to update profile.");
+      });
 
     // APPWRITE INTEGRATION:
     // Replace with Appwrite account update
