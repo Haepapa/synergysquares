@@ -139,7 +139,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const updateUser = (data: Partial<User>) => {
     if (!user) return;
-
     authService
       .updateProfile(user.id, data)
       .then(() => {
@@ -152,23 +151,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.error("Update failed:", error);
         throw new Error("Failed to update profile.");
       });
-
-    // APPWRITE INTEGRATION:
-    // Replace with Appwrite account update
-    // Example:
-    // if (data.name) {
-    //   account.updateName(data.name)
-    //     .then((response) => {
-    //       setUser({
-    //         ...user,
-    //         ...data,
-    //       });
-    //     })
-    //     .catch((error) => {
-    //       console.error("Update failed:", error);
-    //       throw new Error("Failed to update profile.");
-    //     });
-    // }
   };
 
   const deleteAccount = () => {
