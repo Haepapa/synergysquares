@@ -1,35 +1,42 @@
-"use client"
+"use client";
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-import type { Game } from "@/types/game"
-import { useAuth } from "@/context/auth-context"
-import { generateBoardCells } from "@/lib/game-utils"
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  type ReactNode,
+} from "react";
+import type { Game } from "@/types/game";
+import { useAuth } from "@/context/auth-context";
+import { generateBoardCells } from "@/lib/game-utils";
+import { gameService } from "@/lib/game-service";
 
 interface GameContextType {
-  games: Game[]
-  activeGameId: string | null
-  setActiveGameId: (id: string) => void
-  createGame: () => string
-  updateGame: (game: Game) => void
-  removeGame: (id: string) => void
-  fetchGameByToken: (token: string) => Promise<Game | null>
+  games: Game[];
+  activeGameId: string | null;
+  setActiveGameId: (id: string) => void;
+  createGame: () => string;
+  updateGame: (game: Game) => void;
+  removeGame: (id: string) => void;
+  fetchGameByToken: (token: string) => Promise<Game | null>;
 }
 
-const GameContext = createContext<GameContextType | undefined>(undefined)
+const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export function GameProvider({ children }: { children: ReactNode }) {
-  const [games, setGames] = useState<Game[]>([])
-  const [activeGameId, setActiveGameId] = useState<string | null>(null)
+  const [games, setGames] = useState<Game[]>([]);
+  const [activeGameId, setActiveGameId] = useState<string | null>(null);
   const { user } = useAuth();
 
   // Load games from localStorage on initial render
   useEffect(() => {
-    const storedGames = localStorage.getItem("bingo-games")
+    const storedGames = localStorage.getItem("bingo-games");
     if (storedGames) {
       try {
-        setGames(JSON.parse(storedGames))
+        setGames(JSON.parse(storedGames));
       } catch (error) {
-        console.error("Failed to parse stored games:", error)
+        console.error("Failed to parse stored games:", error);
       }
     }
 
@@ -49,25 +56,25 @@ export function GameProvider({ children }: { children: ReactNode }) {
     //     console.error("Failed to fetch games:", error);
     //   });
     // }
-  }, [])
+  }, []);
 
   // Save games to localStorage whenever they change
   useEffect(() => {
-    console.log("Saving games to localStorage:", games)
+    console.log("Saving games to localStorage:", games);
     // localStorage.setItem("bingo-games", JSON.stringify(games))
 
-    console.log("User ID:", user?.id)
+    console.log("User ID:", user?.id);
     // TODO (me): Use this effect to save games to Appwrite
 
     // APPWRITE INTEGRATION:
     // This effect is not needed with Appwrite as game data is stored server-side
-  }, [games])
+  }, [games]);
 
   const createGame = () => {
     // TODO (me): Add user id to game id
-    console.log("Creating new game")
-    const id = `game_${Date.now()}`
-    const boardSize = 5
+    console.log("Creating new game");
+    const id = `game_${Date.now()}`;
+    const boardSize = 5;
     const newGame: Game = {
       id,
       name: "New Bingo Game",
@@ -86,9 +93,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
           hasBingo: false,
         },
       ],
-    }
+    };
+    gameService.createGame(user?.id ?? "anonymous", newGame);
 
-    setGames((prevGames) => [...prevGames, newGame])
+    setGames((prevGames) => [...prevGames, newGame]);
 
     // APPWRITE INTEGRATION:
     // Replace with Appwrite document creation
@@ -115,12 +123,14 @@ export function GameProvider({ children }: { children: ReactNode }) {
     //   });
     // }
 
-    return id
-  }
+    return id;
+  };
 
   const updateGame = (updatedGame: Game) => {
-    console.log("Updating game:", updatedGame)
-    setGames((prevGames) => prevGames.map((game) => (game.id === updatedGame.id ? updatedGame : game)))
+    console.log("Updating game:", updatedGame);
+    setGames((prevGames) =>
+      prevGames.map((game) => (game.id === updatedGame.id ? updatedGame : game))
+    );
 
     // APPWRITE INTEGRATION:
     // Replace with Appwrite document update
@@ -137,19 +147,19 @@ export function GameProvider({ children }: { children: ReactNode }) {
     //   console.error("Failed to update game:", error);
     //   throw new Error("Failed to update game.");
     // });
-  }
+  };
 
   const removeGame = (id: string) => {
     setGames((prevGames) => {
-      const updatedGames = prevGames.filter((game) => game.id !== id)
+      const updatedGames = prevGames.filter((game) => game.id !== id);
 
       // If the removed game was active, set the first remaining game as active or null
       if (activeGameId === id) {
-        setActiveGameId(updatedGames.length > 0 ? updatedGames[0].id : null)
+        setActiveGameId(updatedGames.length > 0 ? updatedGames[0].id : null);
       }
 
-      return updatedGames
-    })
+      return updatedGames;
+    });
 
     // APPWRITE INTEGRATION:
     // Replace with Appwrite document deletion
@@ -162,15 +172,15 @@ export function GameProvider({ children }: { children: ReactNode }) {
     //   console.error("Failed to delete game:", error);
     //   throw new Error("Failed to delete game.");
     // });
-  }
+  };
 
   const fetchGameByToken = async (token: string): Promise<Game | null> => {
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 500))
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
     // Find game with matching token
-    const game = games.find((g) => g.token === token)
-    return game || null
+    const game = games.find((g) => g.token === token);
+    return game || null;
 
     // APPWRITE INTEGRATION:
     // Replace with Appwrite database query
@@ -189,7 +199,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     //   console.error("Failed to fetch game by token:", error);
     //   throw new Error("Failed to fetch game.");
     // }
-  }
+  };
 
   return (
     <GameContext.Provider
@@ -205,13 +215,13 @@ export function GameProvider({ children }: { children: ReactNode }) {
     >
       {children}
     </GameContext.Provider>
-  )
+  );
 }
 
 export function useGame() {
-  const context = useContext(GameContext)
+  const context = useContext(GameContext);
   if (context === undefined) {
-    throw new Error("useGame must be used within a GameProvider")
+    throw new Error("useGame must be used within a GameProvider");
   }
-  return context
+  return context;
 }

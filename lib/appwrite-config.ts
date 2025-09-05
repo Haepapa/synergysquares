@@ -48,6 +48,7 @@ client
 
 export const databaseID = process.env.NEXT_PUBLIC_APPWRITE_DATABASEID ?? "";
 export const collection01ID = process.env.NEXT_PUBLIC_APPWRITE_COLLECTION01ID ?? "";
+export const collection02ID = process.env.NEXT_PUBLIC_APPWRITE_COLLECTION02ID ?? "";
 export const account = new Account(client);
 export const databases = new Databases(client);
 export const storage = new Storage(client);
