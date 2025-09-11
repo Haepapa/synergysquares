@@ -38,6 +38,7 @@ export const gameService = {
     // const games = storedGames ? JSON.parse(storedGames) : [];
     // games.push(newGame);
     // localStorage.setItem("bingo-games", JSON.stringify(games));
+    // TODO (me): how to get this data into appwrite?
     console.log("New game created:", newGame);
 
     // return newGame;
@@ -50,7 +51,6 @@ export const gameService = {
         'unique()',
         {
           ...gameData,
-          userId,
           status: "not_started",
           winningPatterns: [],
           isHost: true,

@@ -45,6 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             name: response.name,
             email: response.email,
           });
+          console.log("Current user is:", response.name);
         } else {
           setUser(null);
         }

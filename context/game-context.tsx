@@ -59,20 +59,20 @@ export function GameProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Save games to localStorage whenever they change
-  useEffect(() => {
-    console.log("Saving games to localStorage:", games);
+  // useEffect(() => {
+    // console.log("Saving games to localStorage:", games);
     // localStorage.setItem("bingo-games", JSON.stringify(games))
 
-    console.log("User ID:", user?.id);
-    // TODO (me): Use this effect to save games to Appwrite
+    // console.log("User ID:", user?.id);
 
     // APPWRITE INTEGRATION:
     // This effect is not needed with Appwrite as game data is stored server-side
-  }, [games]);
+  // }, [games]);
 
   const createGame = () => {
-    // TODO (me): Add user id to game id
+    // TODO (me): for some reason the user data si not ready in time for the game creation. all new games will be created anonymously...
     console.log("Creating new game");
+    console.log("User ID:", user);
     const id = `game_${Date.now()}`;
     const boardSize = 5;
     const newGame: Game = {
