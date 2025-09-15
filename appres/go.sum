@@ -1,6 +1,6 @@
-github.com/Haepapa/appres v0.0.0-20250830085547-4d91b95a0687 h1:lveZuIHjnN2gLbF5b6jkEN5PHQDJ8KDNg3y2t5v5QWU=
-github.com/Haepapa/appres v0.0.0-20250830085547-4d91b95a0687/go.mod h1:cBvsdIBYPzutfteMM0WtKrOb7vyBIfLJEk56BJ5rt9I=
-github.com/appwrite/sdk-for-go v0.7.0 h1:w0hSO4XEKRqMPlELsG/Z3lHrVsYl3YKZVnMocqU8NaQ=
-github.com/appwrite/sdk-for-go v0.7.0/go.mod h1:aFiOAbfOzGS3811eMCt3T9WDBvjvPVAfOjw10Vghi4E=
+github.com/Haepapa/appres v0.0.0-20250914045538-a51eb8444055 h1:VADTcozHFpEFF1GB6bfY9RTAyTGFmsLb/ZkvFlSyfI4=
+github.com/Haepapa/appres v0.0.0-20250914045538-a51eb8444055/go.mod h1:cBvsdIBYPzutfteMM0WtKrOb7vyBIfLJEk56BJ5rt9I=
+github.com/appwrite/sdk-for-go v0.11.0 h1:Ooz1YlaYfJswrcbXvUAmPYZMtBPOPtz4Y4e3awSvHXg=
+github.com/appwrite/sdk-for-go v0.11.0/go.mod h1:aFiOAbfOzGS3811eMCt3T9WDBvjvPVAfOjw10Vghi4E=
 github.com/joho/godotenv v1.5.1 h1:7eLL/+HRGLY0ldzfGMeQkb7vMd0as4CfYvUVzLqw0N0=
 github.com/joho/godotenv v1.5.1/go.mod h1:f4LDr5Voq0i2e/R5DDNOoa2zzDfwtkZa6DnEwAbqwq4=

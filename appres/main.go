@@ -1,12 +1,13 @@
 package main
 
 import (
-    "crypto/tls"
-    "log"
-    "net/http"
-    
-    app "github.com/Haepapa/appres"
+	"crypto/tls"
+	"log"
+	"net/http"
+
 	col "appres/collections"
+
+	app "github.com/Haepapa/appres"
 )
 
 func main() {
@@ -25,6 +26,7 @@ func main() {
 
     // Create collection(s)
     col.ContactUs(db)
+    col.Games(db)
 
     log.Println("Successfully created database, collection, and attributes!")
 }
