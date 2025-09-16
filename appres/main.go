@@ -26,7 +26,17 @@ func main() {
 
     // Create collection(s)
     col.ContactUs(db)
-    col.Games(db)
+    colPalyerID, err := col.Player(db)
+    if err != nil {
+        log.Println("Error creating collection:", err)
+        return
+    }
+    colCellID, err := col.Cell(db)
+    if err != nil {
+        log.Println("Error creating collection:", err)
+        return
+    }
+    col.Games(db, colPalyerID, colCellID)
 
     log.Println("Successfully created database, collection, and attributes!")
 }

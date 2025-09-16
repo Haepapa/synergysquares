@@ -6,7 +6,7 @@ import (
 	app "github.com/Haepapa/appres"
 	"github.com/appwrite/sdk-for-go/models"
 )
-func Games(db *models.Database) {
+func Games(db *models.Database, colPlayerID string, colCellID string) {
 
     // Create collection(s)
     colGames, err := app.CreateCollection(db.Id, "games")
@@ -83,7 +83,6 @@ func Games(db *models.Database) {
             Type:        "boolean",
             Name:        "isHost",
             Required:    false,
-            Default:     "",
             Array:       false,
             Encrypt:     false,
         },
@@ -93,6 +92,12 @@ func Games(db *models.Database) {
             Required:    false,
             Array:       false,
             Encrypt:     false,
+        },
+        {
+            Type:        "relationship",
+            TwoWay:      false,
+            RelatedCollectionID: colPlayerID,
+            RelationshipType:       false,
         },
     }
 
