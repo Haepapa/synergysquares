@@ -49,3 +49,14 @@ sequenceDiagram
     AS->>AX: consume services
     AX->>AD: use context
 ```
+
+### Data Model
+Defined in `/appres` directory and built in Appwrite.
+```mermaid
+erDiagram
+    GAME ||--|{ CELL : contains
+    GAME }|--|{ PLAYER : plays
+    CELL }|..|| PLAYER : marks
+    CONTACT_US
+
+```
