@@ -95,9 +95,10 @@ func Games(db *models.Database, colPlayerID string, colCellID string) {
         },
         {
             Type:        "relationship",
-            TwoWay:      false,
+            TwoWay:      true,
             RelatedCollectionID: colPlayerID,
-            RelationshipType:       false,
+            RelationshipType: "oneToMany",
+            OnDelete:   "setNull",
         },
     }
 
