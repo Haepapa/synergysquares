@@ -6,13 +6,13 @@ import (
 	app "github.com/Haepapa/appres"
 	"github.com/appwrite/sdk-for-go/models"
 )
-func Game(db *models.Database, colPlayerID string, colCellID string) {
+func Game(db *models.Database, colBoardID string) (string, error) {
 
     // Create collection(s)
     colGames, err := app.CreateCollection(db.Id, "game")
     if err != nil {
         log.Println("Error creating collection:", err)
-        return
+        return "", err
     }
 
     // Create attributes in collection(s)
@@ -96,20 +96,10 @@ func Game(db *models.Database, colPlayerID string, colCellID string) {
         {
             Type:        "relationship",
             TwoWay:      true,
-            RelatedCollectionID: colPlayerID,
-            RelationshipType: "manyToMany",
-            OnDelete:   "setNull",
-            Name:        "players",
-            TwoWayKey:   "games",
-
-        },
-        {
-            Type:        "relationship",
-            TwoWay:      true,
-            RelatedCollectionID: colCellID,
+            RelatedCollectionID: colBoardID,
             RelationshipType: "oneToMany",
             OnDelete:   "cascade",
-            Name:        "cells",
+            Name:        "boards",
             TwoWayKey:   "game",
 
         },
@@ -119,8 +109,8 @@ func Game(db *models.Database, colPlayerID string, colCellID string) {
         err = app.CreateAttribute(db.Id, colGames.Id, att)
         if err != nil {
             log.Println("Error creating attribute:", err)
-            return
+            return "", err
         }
     }
+    return colGames.Id, nil
 }
-//TODO: (me) update go package for new types

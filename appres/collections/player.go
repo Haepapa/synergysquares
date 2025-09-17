@@ -6,7 +6,7 @@ import (
 	app "github.com/Haepapa/appres"
 	"github.com/appwrite/sdk-for-go/models"
 )
-func Player(db *models.Database) (string, error) {
+func Player(db *models.Database, colBoardID string, colGameID string) (string, error) {
 
     // Create collection(s)
     colPlayer, err := app.CreateCollection(db.Id, "player")
@@ -53,6 +53,26 @@ func Player(db *models.Database) (string, error) {
             Required:    false,
             Array:       false,
             Encrypt:     false,
+        },
+        {
+            Type:        "relationship",
+            TwoWay:      true,
+            RelatedCollectionID: colBoardID,
+            RelationshipType: "oneToMany",
+            OnDelete:   "cascade",
+            Name:        "boards",
+            TwoWayKey:   "player",
+
+        },
+        {
+            Type:        "relationship",
+            TwoWay:      true,
+            RelatedCollectionID: colGameID,
+            RelationshipType: "oneToMany",
+            OnDelete:   "cascade",
+            Name:        "games",
+            TwoWayKey:   "player",
+
         },
     }
 
