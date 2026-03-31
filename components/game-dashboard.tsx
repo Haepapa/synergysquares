@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import {
@@ -23,6 +23,7 @@ import GameSettingsModal from "@/components/game-settings-modal"
 import PlayerListPanel from "@/components/player-list-panel"
 import AccountDialog from "@/components/account-dialog"
 import { useGame } from "@/context/game-context"
+import type { Game } from "@/types/game"
 import { useAuth } from "@/context/auth-context"
 import { toast } from "sonner"
 import SynergySquaresLogo from "@/components/synergy-squares-logo"
@@ -52,6 +53,12 @@ export default function GameDashboard() {
   const [authMode, setAuthMode] = useState<"login" | "signup">("login")
   const [showAccountMenu, setShowAccountMenu] = useState(false)
 
+  const handleCreateGame = useCallback(() => {
+    const newGameId = createGame()
+    setActiveGameId(newGameId)
+    setShowSettings(true)
+  }, [createGame, setActiveGameId])
+
   // Create a default game if none exists
   useEffect(() => {
     if (games.length === 0) {
@@ -59,13 +66,7 @@ export default function GameDashboard() {
     } else if (!activeGameId && games.length > 0) {
       setActiveGameId(games[0].id)
     }
-  }, [games, activeGameId, setActiveGameId])
-
-  const handleCreateGame = () => {
-    const newGameId = createGame()
-    setActiveGameId(newGameId)
-    setShowSettings(true)
-  }
+  }, [games, activeGameId, setActiveGameId, handleCreateGame])
 
   const handleRemoveGame = (gameId: string) => {
     setGameToRemove(gameId)
@@ -82,7 +83,7 @@ export default function GameDashboard() {
     }
   }
 
-  const toggleGameStatus = (game: any) => {
+  const toggleGameStatus = (game: Game) => {
     // If game has winning patterns, don't allow status changes
     if (game.winningPatterns && game.winningPatterns.length > 0) {
       toast.info("Game completed", {

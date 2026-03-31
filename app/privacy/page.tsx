@@ -50,7 +50,7 @@ export default function PrivacyPolicyPage() {
               <p>
                 At Synergy Squares, we respect your privacy and are committed to protecting your personal data. This
                 Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our
-                website, application, and services (collectively, the "Service").
+                website, application, and services (collectively, the &quot;Service&quot;).
               </p>
               <p>
                 Please read this Privacy Policy carefully. If you do not agree with the terms of this Privacy Policy,
@@ -67,7 +67,7 @@ export default function PrivacyPolicyPage() {
                 </li>
                 <li>
                   <strong>Usage Data:</strong> We may collect information on how the Service is accessed and used. This
-                  may include your computer's Internet Protocol address, browser type, browser version, the pages of our
+                  may include your computer&apos;s Internet Protocol address, browser type, browser version, the pages of our
                   Service that you visit, the time and date of your visit, the time spent on those pages, and other
                   diagnostic data.
                 </li>
@@ -173,7 +173,7 @@ export default function PrivacyPolicyPage() {
                 if you do not accept cookies, you may not be able to use some portions of our Service.
               </p>
 
-              <h2 className="text-2xl font-semibold mt-8 mb-4">9. Children's Privacy</h2>
+              <h2 className="text-2xl font-semibold mt-8 mb-4">9. Children&apos;s Privacy</h2>
               <p>
                 Our Service does not address anyone under the age of 13. We do not knowingly collect personally
                 identifiable information from anyone under the age of 13. If you are a parent or guardian and you are
@@ -183,7 +183,7 @@ export default function PrivacyPolicyPage() {
               <h2 className="text-2xl font-semibold mt-8 mb-4">10. Changes to This Privacy Policy</h2>
               <p>
                 We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new
-                Privacy Policy on this page and updating the "Last updated" date at the top of this Privacy Policy.
+                Privacy Policy on this page and updating the &quot;Last updated&quot; date at the top of this Privacy Policy.
               </p>
               <p>
                 You are advised to review this Privacy Policy periodically for any changes. Changes to this Privacy

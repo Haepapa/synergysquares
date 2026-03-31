@@ -116,7 +116,7 @@ export default function IntroductionScreen() {
                 </CardHeader>
                 <CardContent>
                   <p>
-                    Play together with your team in real-time. Share your game with a simple token and track everyone's
+                    Play together with your team in real-time. Share your game with a simple token and track everyone&apos;s
                     progress.
                   </p>
                 </CardContent>

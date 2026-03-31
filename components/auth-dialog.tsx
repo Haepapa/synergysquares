@@ -18,7 +18,6 @@ import { useAuth } from "@/context/auth-context";
 // Ensure we're importing toast correctly
 import { toast } from "sonner";
 import { Apple } from "lucide-react";
-import { authService } from "@/lib/appwrite-service";
 
 interface AuthDialogProps {
   mode: "login" | "signup";

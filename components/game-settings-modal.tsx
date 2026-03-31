@@ -35,7 +35,7 @@ export default function GameSettingsModal({ game, onClose }: GameSettingsModalPr
   const [savedPresets, setSavedPresets] = useState<Record<string, string[]>>({})
   const [gameToken, setGameToken] = useState(game.token || "")
   const [isHost, setIsHost] = useState<boolean>(game.isHost !== false)
-  const [isJoining, setIsJoining] = useState(false)
+  const [_isJoining, _setIsJoining] = useState(false)
   const [isValidToken, setIsValidToken] = useState(false)
   const [showPresetManager, setShowPresetManager] = useState(false)
 
@@ -65,7 +65,7 @@ export default function GameSettingsModal({ game, onClose }: GameSettingsModalPr
       try {
         const foundGame = await fetchGameByToken(gameToken)
         setIsValidToken(!!foundGame)
-      } catch (error) {
+      } catch (_error) {
         setIsValidToken(false)
       }
     }
@@ -153,7 +153,7 @@ export default function GameSettingsModal({ game, onClose }: GameSettingsModalPr
       toast.success("Game joined", {
         description: "You have successfully joined the game.",
       })
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to join game", {
         description: "There was an error joining the game. Please try again.",
       })
@@ -175,7 +175,7 @@ export default function GameSettingsModal({ game, onClose }: GameSettingsModalPr
     }
   }
 
-  const handleSavePreset = () => {
+  const _handleSavePreset = () => {
     if (!customPresetName.trim()) {
       toast.error("Missing preset name", {
         description: "Please provide a name for your custom preset.",
@@ -349,7 +349,7 @@ export default function GameSettingsModal({ game, onClose }: GameSettingsModalPr
                       </Select>
                     ) : (
                       <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/30">
-                        You haven't created any custom presets yet. Click "My Presets" to create one.
+                        You haven&apos;t created any custom presets yet. Click &quot;My Presets&quot; to create one.
                       </div>
                     )}
                   </div>
@@ -469,7 +469,7 @@ export default function GameSettingsModal({ game, onClose }: GameSettingsModalPr
                 <h3 className="font-medium">How Multiplayer Works</h3>
                 <ul className="mt-2 ml-5 text-sm list-disc text-muted-foreground">
                   <li>As a host: Generate a token and share it with others to join your game</li>
-                  <li>As a player: Enter a token you received to join someone else's game</li>
+                  <li>As a player: Enter a token you received to join someone else&apos;s game</li>
                   <li>All players will see the same board and can mark cells independently</li>
                   <li>The host can see all players and remove them if needed</li>
                 </ul>

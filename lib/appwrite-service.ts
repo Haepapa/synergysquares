@@ -1,16 +1,14 @@
-import type { Game, Player } from "@/types/game";
+import { ID, AppwriteException } from "appwrite";
 // When integrating with Appwrite, uncomment these imports
 import {
   account,
   databases,
   databaseID,
   collection01ID,
-  collection02ID,
 } from "./appwrite-config";
 // import { account, databases, storage, functions } from "./appwrite-config";
 // import { COLLECTIONS, BUCKETS, FUNCTIONS } from "./appwrite-config";
 // import { Query, ID } from "appwrite";
-import { ID, AppwriteException } from "appwrite";
 import { ContactFormType } from "@/types/contact";
 
 //========================================================================================
@@ -124,7 +122,7 @@ export const authService = {
   /**
    * Update user profile
    */
-  updateProfile: async (userId: string, data: { name?: string }) => {
+  updateProfile: async (_userId: string, data: { name?: string }) => {
     // Simulate API call
     // await new Promise((resolve) => setTimeout(resolve, 500));
     // const storedUser = localStorage.getItem("bingo-user");
@@ -184,7 +182,7 @@ export const authService = {
 //========================================================================================
 // Game Services
 //========================================================================================
-const getWinPatterns = (boardSize: number): number[][] => {
+const _getWinPatterns = (boardSize: number): number[][] => {
   const patterns: number[][] = [];
 
   // Rows
@@ -258,7 +256,7 @@ export const presetService = {
   /**
    * Save a custom preset
    */
-  savePreset: async (userId: string, name: string, items: string[]) => {
+  savePreset: async (_userId: string, name: string, items: string[]) => {
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 500));
     const storedPresets = localStorage.getItem("bingo-custom-presets");

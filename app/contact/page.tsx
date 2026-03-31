@@ -47,7 +47,7 @@ export default function ContactPage() {
           <div className="max-w-4xl mx-auto">
             <h1 className="text-3xl font-bold mb-6">Contact Us</h1>
             <p className="mb-8 text-muted-foreground">
-              Have questions, feedback, or need support? We'd love to hear from you. Fill out the form below and our
+              Have questions, feedback, or need support? We&apos;d love to hear from you. Fill out the form below and our
               team will get back to you as soon as possible.
             </p>
 
@@ -61,7 +61,7 @@ export default function ContactPage() {
                   <div>
                     <h3 className="font-medium">How do I create a custom bingo game?</h3>
                     <p className="text-muted-foreground">
-                      Sign in, click "Start Playing", then create a new game and customize it in the settings.
+                      Sign in, click &quot;Start Playing&quot;, then create a new game and customize it in the settings.
                     </p>
                   </div>
                   <div>
@@ -79,7 +79,7 @@ export default function ContactPage() {
                   <div>
                     <h3 className="font-medium">How do I save my custom presets?</h3>
                     <p className="text-muted-foreground">
-                      Create an account, then click "My Presets" in the game settings to create and manage your custom
+                      Create an account, then click &quot;My Presets&quot; in the game settings to create and manage your custom
                       presets.
                     </p>
                   </div>

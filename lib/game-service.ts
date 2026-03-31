@@ -1,4 +1,5 @@
-import type { Game } from "@/types/game";
+import type { Game, Player } from "@/types/game";
+import { getWinPatterns } from "@/lib/utils";
 import {
   databases,
   databaseID,
@@ -76,7 +77,7 @@ export const gameService = {
   /**
    * Get all games for a user
    */
-  getUserGames: async (userId: string) => {
+  getUserGames: async (_userId: string) => {
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 500));
     const storedGames = localStorage.getItem("bingo-games");
@@ -254,7 +255,7 @@ export const gameService = {
    */
   checkWinner: async (
     gameId: string,
-    playerId: string,
+    _playerId: string,
     markedCells: number[]
   ) => {
     // Simulate API call

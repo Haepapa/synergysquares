@@ -41,9 +41,9 @@ export default function TermsOfServicePage() {
             <div className="prose dark:prose-invert max-w-none">
               <h2 className="text-2xl font-semibold mt-8 mb-4">1. Introduction</h2>
               <p>
-                Welcome to Synergy Squares. These Terms of Service ("Terms") govern your use of the Synergy Squares
-                website, application, and services (collectively, the "Service") operated by Synergy Squares ("we,"
-                "us," or "our"). By accessing or using the Service, you agree to be bound by these Terms. If you
+                Welcome to Synergy Squares. These Terms of Service (&quot;Terms&quot;) govern your use of the Synergy Squares
+                website, application, and services (collectively, the &quot;Service&quot;) operated by Synergy Squares (&quot;we,&quot;
+                &quot;us,&quot; or &quot;our&quot;). By accessing or using the Service, you agree to be bound by these Terms. If you
                 disagree with any part of the Terms, you may not access the Service.
               </p>
 
@@ -58,7 +58,7 @@ export default function TermsOfServicePage() {
               <h2 className="text-2xl font-semibold mt-8 mb-4">3. User Content</h2>
               <p>
                 Our Service allows you to create, post, link, store, share and otherwise make available certain
-                information, text, graphics, or other material ("Content"). You are responsible for the Content that you
+                information, text, graphics, or other material (&quot;Content&quot;). You are responsible for the Content that you
                 post to the Service, including its legality, reliability, and appropriateness.
               </p>
               <p>
@@ -73,15 +73,15 @@ export default function TermsOfServicePage() {
               <ul className="list-disc pl-6 mb-4">
                 <li>In any way that violates any applicable national or international law or regulation.</li>
                 <li>
-                  To transmit, or procure the sending of, any advertising or promotional material, including any "junk
-                  mail," "chain letter," "spam," or any other similar solicitation.
+                  To transmit, or procure the sending of, any advertising or promotional material, including any &quot;junk
+                  mail,&quot; &quot;chain letter,&quot; &quot;spam,&quot; or any other similar solicitation.
                 </li>
                 <li>
                   To impersonate or attempt to impersonate Synergy Squares, a Synergy Squares employee, another user, or
                   any other person or entity.
                 </li>
                 <li>
-                  To engage in any other conduct that restricts or inhibits anyone's use or enjoyment of the Service, or
+                  To engage in any other conduct that restricts or inhibits anyone&apos;s use or enjoyment of the Service, or
                   which, as determined by us, may harm Synergy Squares or users of the Service or expose them to
                   liability.
                 </li>
@@ -118,7 +118,7 @@ export default function TermsOfServicePage() {
 
               <h2 className="text-2xl font-semibold mt-8 mb-4">8. Disclaimer</h2>
               <p>
-                Your use of the Service is at your sole risk. The Service is provided on an "AS IS" and "AS AVAILABLE"
+                Your use of the Service is at your sole risk. The Service is provided on an &quot;AS IS&quot; and &quot;AS AVAILABLE&quot;
                 basis. The Service is provided without warranties of any kind, whether express or implied, including,
                 but not limited to, implied warranties of merchantability, fitness for a particular purpose,
                 non-infringement or course of performance.
@@ -134,7 +134,7 @@ export default function TermsOfServicePage() {
               <h2 className="text-2xl font-semibold mt-8 mb-4">10. Changes to Terms</h2>
               <p>
                 We reserve the right, at our sole discretion, to modify or replace these Terms at any time. If a
-                revision is material we will try to provide at least 30 days' notice prior to any new terms taking
+                revision is material we will try to provide at least 30 days&apos; notice prior to any new terms taking
                 effect. What constitutes a material change will be determined at our sole discretion. By continuing to
                 access or use our Service after those revisions become effective, you agree to be bound by the revised
                 terms.
