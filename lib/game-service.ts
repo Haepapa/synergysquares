@@ -1,4 +1,4 @@
-import { Query } from "appwrite";
+import { Query, Permission, Role } from "appwrite";
 import type { Cell, Game, Player } from "@/types/game";
 import { getWinPatterns } from "@/lib/game-utils";
 import { databases, databaseID, collection02ID } from "./appwrite-config";
@@ -87,7 +87,14 @@ export const gameService = {
         token: gameData.token ?? null,
         isHost: true,
         createdAt: new Date().toISOString(),
-      }
+      },
+      // Any authenticated user can read (needed for token-based game lookup).
+      // Only the creating user can update or delete.
+      [
+        Permission.read(Role.any()),
+        Permission.update(Role.user(userId)),
+        Permission.delete(Role.user(userId)),
+      ]
     );
 
     return documentToGame(doc);

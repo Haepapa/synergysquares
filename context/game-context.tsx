@@ -24,6 +24,17 @@ interface GameContextType {
   updateGame: (game: Game) => void;
   removeGame: (id: string) => void;
   fetchGameByToken: (token: string) => Promise<Game | null>;
+  /**
+   * Join an existing game by its share token.
+   * Always queries Appwrite so a player can join a game hosted by another user.
+   * The game is added to the local games list with `isHost: false`.
+   * Returns the joined Game, or `null` if the token is invalid.
+   */
+  joinByToken: (
+    token: string,
+    playerName: string,
+    playerId: string
+  ) => Promise<Game | null>;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -187,6 +198,60 @@ export function GameProvider({ children }: { children: ReactNode }) {
     [user, games]
   );
 
+  /**
+   * Join an existing game by its share token.
+   *
+   * Always queries Appwrite so the joiner can find a game hosted by another
+   * user.  The found game is added to the local games list with `isHost: false`
+   * and the joining player appended to the players array.  We intentionally do
+   * NOT call `updateGame` here because the joining player does not have write
+   * permission on the host's Appwrite document — full player-list sync is
+   * handled by Appwrite Realtime (task [6]).
+   *
+   * @param token      - The share token displayed in the host's PlayerListPanel.
+   * @param playerName - Display name for the joining player.
+   * @param playerId   - Unique ID for the joining player (use the Appwrite user
+   *                     id when authenticated, or a guest-generated string).
+   * @returns The joined Game, or `null` if the token is invalid.
+   */
+  const joinByToken = useCallback(
+    async (
+      token: string,
+      playerName: string,
+      playerId: string
+    ): Promise<Game | null> => {
+      // Always hit Appwrite so the joiner can find games they don't own.
+      const foundGame = await gameService.getGameByToken(token);
+      if (!foundGame) return null;
+
+      const joinedGame: Game = {
+        ...foundGame,
+        isHost: false,
+        players: [
+          ...(foundGame.players ?? []),
+          {
+            id: playerId,
+            name: playerName,
+            isHost: false,
+            joinTime: new Date().toISOString(),
+            hasBingo: false,
+          },
+        ],
+      };
+
+      setGames((prev) => {
+        // If we already have this game in our list (e.g. rejoining), replace it.
+        if (prev.some((g) => g.id === joinedGame.id)) {
+          return prev.map((g) => (g.id === joinedGame.id ? joinedGame : g));
+        }
+        return [...prev, joinedGame];
+      });
+
+      return joinedGame;
+    },
+    []
+  );
+
   return (
     <GameContext.Provider
       value={{
@@ -198,6 +263,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
         updateGame,
         removeGame,
         fetchGameByToken,
+        joinByToken,
       }}
     >
       {children}

@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useGame } from "@/context/game-context"
 import { useAuth } from "@/context/auth-context"
+import { gameService } from "@/lib/game-service"
 import { toast } from "sonner"
 import type { Game } from "@/types/game"
 import { generateBoardCells } from "@/lib/game-utils"
@@ -23,7 +24,7 @@ interface GameSettingsModalProps {
 }
 
 export default function GameSettingsModal({ game, onClose }: GameSettingsModalProps) {
-  const { updateGame, fetchGameByToken } = useGame()
+  const { updateGame, joinByToken, setActiveGameId } = useGame()
   const { user } = useAuth()
   const [activeTab, setActiveTab] = useState("setup")
   const [gameName, setGameName] = useState(game.name || "")
@@ -54,7 +55,8 @@ export default function GameSettingsModal({ game, onClose }: GameSettingsModalPr
     }
   }, [game.cells])
 
-  // Validate token when it changes
+  // Validate token when it changes — always query Appwrite so guests can
+  // validate tokens for games hosted by other users.
   useEffect(() => {
     const validateToken = async () => {
       if (!gameToken || gameToken.length < 4) {
@@ -63,7 +65,7 @@ export default function GameSettingsModal({ game, onClose }: GameSettingsModalPr
       }
 
       try {
-        const foundGame = await fetchGameByToken(gameToken)
+        const foundGame = await gameService.getGameByToken(gameToken)
         setIsValidToken(!!foundGame)
       } catch (_error) {
         setIsValidToken(false)
@@ -75,7 +77,7 @@ export default function GameSettingsModal({ game, onClose }: GameSettingsModalPr
     } else {
       setIsValidToken(false)
     }
-  }, [gameToken, isHost, fetchGameByToken])
+  }, [gameToken, isHost])
 
   // Fix: Always update cells when saving settings
   const handleSaveSettings = () => {
@@ -121,33 +123,20 @@ export default function GameSettingsModal({ game, onClose }: GameSettingsModalPr
     }
 
     try {
-      // Check if the game token is valid
-      const foundGame = await fetchGameByToken(gameToken)
+      const playerName = user?.name ?? "Guest"
+      const playerId = user?.id ?? `guest_${Date.now()}`
 
-      if (!foundGame) {
+      const joinedGame = await joinByToken(gameToken, playerName, playerId)
+
+      if (!joinedGame) {
         toast.error("Invalid game token", {
           description: "The game token you entered does not exist.",
         })
         return
       }
 
-      // Join the game as a non-host player
-      const joinedGame = {
-        ...foundGame,
-        isHost: false,
-        players: [
-          ...(foundGame.players || []),
-          {
-            id: `player_${Date.now()}`,
-            name: "You", // This would be the current user's name in a real app
-            isHost: false,
-            joinTime: new Date().toISOString(),
-            hasBingo: false,
-          },
-        ],
-      }
-
-      updateGame(joinedGame)
+      // Make the joined game the active game so the board switches to it.
+      setActiveGameId(joinedGame.id)
       onClose()
 
       toast.success("Game joined", {

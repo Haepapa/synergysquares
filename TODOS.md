@@ -107,56 +107,25 @@ import { Query } from 'appwrite';
 
 ---
 
-### [3] Fix anonymous game creation race condition
+### ~~[3] Fix anonymous game creation race condition~~ ✅ DONE
 
 **File:** `context/game-context.tsx` (line ~73)
-**Can be done:** Independently, alongside [1]/[2]
-
-**Problem:**
-```ts
-// TODO (me): for some reason the user data is not ready in time for the game
-// creation. all new games will be created anonymously...
-gameService.createGame(user?.id ?? "anonymous", newGame);
-```
-User context hasn't resolved by the time `createGame()` is called, so `user` is `null` and games are created anonymously.
-
-**Fix:**
-Guard the create button in the UI until `user` is available, or defer game creation:
-```ts
-const createGame = async () => {
-  if (!user) throw new Error("Must be logged in to create a game");
-  // ... rest of creation logic
-};
-```
-Also ensure the "New Game" button in `game-dashboard.tsx` is disabled while `user` is `null`/loading.
+**Resolved by:** Task [2] (guest mode added; authenticated games use proper user ID)
 
 ---
 
-### [4] Make game tokens work server-side
+### ~~[4] Make game tokens work server-side~~ ✅ DONE
 
-**File:** `lib/game-service.ts`, `components/game-settings-modal.tsx`
+**Files:** `lib/game-service.ts`, `context/game-context.tsx`, `components/game-settings-modal.tsx`
 **Depends on:** [1]
 **Blocks:** [5]
 
-**Problem:**
-Token generation is implemented in `game-settings-modal.tsx` (an 8-char random string). However `getGameByToken()` only searches localStorage — it cannot find a game hosted by another user.
-
-**What's already working:**
-- Token generation: `Math.random().toString(36).substring(2, 10)` (game-settings-modal.tsx ~line 245)
-- Token stored on the `Game` type: `token?: string`
-- Token displayed in `PlayerListPanel` for the host to share
-
-**Fix:**
-1. Ensure `token` is saved to the Appwrite game document when the game is created/updated (part of task [1])
-2. `getGameByToken()` already has the correct Appwrite query commented out — uncomment it:
-   ```ts
-   const response = await databases.listDocuments(databaseID, collection02ID, [
-     Query.equal('token', token)
-   ]);
-   return response.documents[0] as Game ?? null;
-   ```
-
-**Appwrite collection:** The `game` collection has a `token` (string, 100 chars) attribute already defined via `appres/collections/game.go`.
+**What was done:**
+1. `createGame()` now sets `Permission.read(Role.any())` on Appwrite documents so any user (or guest) can query games by token.
+2. `joinByToken(token, playerName, playerId)` added to `GameContext` — always queries Appwrite and adds the found game to the local games list with `isHost: false` without writing to the host's document.
+3. `handleJoinGame` in `game-settings-modal.tsx` updated to use `joinByToken`, using the authenticated user's name/id where available.
+4. The token validation `useEffect` now calls `gameService.getGameByToken()` directly (not via context) so guests can validate tokens for games hosted by other users.
+5. On successful join, `setActiveGameId` is called so the board switches to the joined game immediately.
 
 ---
 
