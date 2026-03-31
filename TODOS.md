@@ -74,7 +74,7 @@ import { Query } from 'appwrite';
 
 ---
 
-### [2] Migrate `game-context.tsx` from localStorage to Appwrite
+### ~~[2] Migrate `game-context.tsx` from localStorage to Appwrite~~ ✅ DONE
 
 **File:** `context/game-context.tsx`
 **Depends on:** [1]

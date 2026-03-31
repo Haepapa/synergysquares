@@ -41,7 +41,7 @@ import AuthDialog from "@/components/auth-dialog"
 import Link from "next/link"
 
 export default function GameDashboard() {
-  const { games, activeGameId, setActiveGameId, createGame, removeGame, updateGame } = useGame()
+  const { games, activeGameId, isLoading, setActiveGameId, createGame, removeGame, updateGame } = useGame()
   const { user, logout } = useAuth()
   const [showSettings, setShowSettings] = useState(false)
   const [showPlayerList, setShowPlayerList] = useState(false)
@@ -53,20 +53,23 @@ export default function GameDashboard() {
   const [authMode, setAuthMode] = useState<"login" | "signup">("login")
   const [showAccountMenu, setShowAccountMenu] = useState(false)
 
-  const handleCreateGame = useCallback(() => {
-    const newGameId = createGame()
-    setActiveGameId(newGameId)
-    setShowSettings(true)
+  const handleCreateGame = useCallback(async () => {
+    const newGameId = await createGame()
+    if (newGameId) {
+      setActiveGameId(newGameId)
+      setShowSettings(true)
+    }
   }, [createGame, setActiveGameId])
 
-  // Create a default game if none exists
+  // Create a default game if none exists (only after Appwrite load completes)
   useEffect(() => {
-    if (games.length === 0) {
+    if (isLoading) return
+    if (games.length === 0 && user) {
       handleCreateGame()
     } else if (!activeGameId && games.length > 0) {
       setActiveGameId(games[0].id)
     }
-  }, [games, activeGameId, setActiveGameId, handleCreateGame])
+  }, [isLoading, games, activeGameId, user, setActiveGameId, handleCreateGame])
 
   const handleRemoveGame = (gameId: string) => {
     setGameToRemove(gameId)
