@@ -1,304 +1,232 @@
-import type { Game, Player } from "@/types/game";
-import { getWinPatterns } from "@/lib/utils";
-import {
-  databases,
-  databaseID,
-  collection02ID,
-} from "./appwrite-config";
+import { Query } from "appwrite";
+import type { Cell, Game, Player } from "@/types/game";
+import { getWinPatterns } from "@/lib/game-utils";
+import { databases, databaseID, collection02ID } from "./appwrite-config";
+
+// ---------------------------------------------------------------------------
+// Helpers — serialise/deserialise Cell[] ↔ Appwrite parallel arrays
+// ---------------------------------------------------------------------------
+
+/**
+ * Convert a Cell array into the two parallel arrays stored in Appwrite:
+ * `cellContents` (string[]) and `cellsMarked` (boolean[]).
+ */
+function serialiseCells(cells: Cell[]): {
+  cellContents: string[];
+  cellsMarked: boolean[];
+} {
+  return {
+    cellContents: cells.map((c) => c.content),
+    cellsMarked: cells.map((c) => c.marked),
+  };
+}
+
+/**
+ * Reconstruct a Cell array from the two parallel Appwrite arrays.
+ * Falls back to an empty array if the data is missing or mismatched.
+ */
+function deserialiseCells(
+  cellContents: string[] | undefined,
+  cellsMarked: boolean[] | undefined
+): Cell[] {
+  if (!cellContents || !cellsMarked) return [];
+  return cellContents.map((content, i) => ({
+    content,
+    marked: cellsMarked[i] ?? false,
+  }));
+}
+
+// ---------------------------------------------------------------------------
+// Document → Game mapper
+// ---------------------------------------------------------------------------
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function documentToGame(doc: Record<string, any>): Game {
+  return {
+    id: doc.$id,
+    name: doc.name,
+    boardSize: doc.boardSize ?? 5,
+    boardColor: doc.boardColor ?? "#9333ea",
+    cells: deserialiseCells(doc.cellContents, doc.cellsMarked),
+    status: doc.status ?? "not_started",
+    startTime: doc.startTime ?? null,
+    winningPatterns: [], // recomputed client-side from marked cells
+    token: doc.token ?? undefined,
+    isHost: doc.isHost ?? false,
+    players: doc.players ?? [],
+  };
+}
+
+// ---------------------------------------------------------------------------
+// gameService
+// ---------------------------------------------------------------------------
 
 export const gameService = {
   /**
-   * Create a new game
+   * Create a new game document in Appwrite.
+   *
+   * @param userId - Appwrite user ID of the host.
+   * @param gameData - Initial game fields (name, boardSize, boardColor, cells, …).
+   * @returns The created Game with `id` set to the Appwrite document `$id`.
    */
-  createGame: async (userId: string, gameData: Partial<Game>) => {
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    const id = `game_${Date.now()}`;
-    const newGame: Game = {
-      id,
-      name: gameData.name || "New Bingo Game",
-      boardSize: gameData.boardSize || 5,
-      boardColor: gameData.boardColor || "#9333ea",
-      cells: gameData.cells || [],
-      status: "not_started",
-      winningPatterns: [],
-      isHost: true,
-      players: [
-        {
-          id: userId,
-          name: "You",
-          isHost: true,
-          joinTime: new Date().toISOString(),
-          hasBingo: false,
-        },
-      ],
+  createGame: async (userId: string, gameData: Partial<Game>): Promise<Game> => {
+    const { cellContents, cellsMarked } = serialiseCells(gameData.cells ?? []);
+
+    const doc = await databases.createDocument(
+      databaseID,
+      collection02ID,
+      "unique()",
+      {
+        name: gameData.name ?? "New Bingo Game",
+        boardSize: gameData.boardSize ?? 5,
+        boardColor: gameData.boardColor ?? "#9333ea",
+        status: "not_started",
+        userId,
+        cellContents,
+        cellsMarked,
+        token: gameData.token ?? null,
+        isHost: true,
+        createdAt: new Date().toISOString(),
+      }
+    );
+
+    return documentToGame(doc);
+  },
+
+  /**
+   * Return all games owned by `userId`, newest first.
+   */
+  getUserGames: async (userId: string): Promise<Game[]> => {
+    const response = await databases.listDocuments(
+      databaseID,
+      collection02ID,
+      [Query.equal("userId", userId), Query.orderDesc("createdAt")]
+    );
+    return response.documents.map(documentToGame);
+  },
+
+  /**
+   * Fetch a single game by its Appwrite document ID.
+   * Returns `null` if the document does not exist.
+   */
+  getGameById: async (gameId: string): Promise<Game | null> => {
+    try {
+      const doc = await databases.getDocument(databaseID, collection02ID, gameId);
+      return documentToGame(doc);
+    } catch {
+      return null;
+    }
+  },
+
+  /**
+   * Look up a game by its shareable token.
+   * Returns `null` if no matching game is found.
+   */
+  getGameByToken: async (token: string): Promise<Game | null> => {
+    const response = await databases.listDocuments(
+      databaseID,
+      collection02ID,
+      [Query.equal("token", token), Query.limit(1)]
+    );
+    if (response.documents.length === 0) return null;
+    return documentToGame(response.documents[0]);
+  },
+
+  /**
+   * Persist changes to an existing game document.
+   *
+   * @param gameId - Appwrite document ID (`game.$id`).
+   * @param gameData - Partial Game fields to update.
+   * @returns The updated Game.
+   */
+  updateGame: async (gameId: string, gameData: Partial<Game>): Promise<Game> => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const payload: Record<string, any> = {
+      name: gameData.name,
+      boardSize: gameData.boardSize,
+      boardColor: gameData.boardColor,
+      status: gameData.status,
+      startTime: gameData.startTime ?? null,
+      token: gameData.token ?? null,
+      isHost: gameData.isHost,
     };
 
-    // Save to localStorage for demo
-    // const storedGames = localStorage.getItem("bingo-games");
-    // const games = storedGames ? JSON.parse(storedGames) : [];
-    // games.push(newGame);
-    // localStorage.setItem("bingo-games", JSON.stringify(games));
-    // TODO (me): how to get this data into appwrite?
-    console.log("New game created:", newGame);
-
-    // return newGame;
-
-    // APPWRITE INTEGRATION:
-    try {
-      const response = await databases.createDocument(
-        databaseID,
-        collection02ID,
-        'unique()',
-        {
-          ...gameData,
-          status: "not_started",
-          winningPatterns: [],
-          isHost: true,
-          players: [
-            {
-              id: userId,
-              name: "You",
-              isHost: true,
-              joinTime: new Date().toISOString(),
-              hasBingo: false,
-            },
-          ],
-          createdAt: new Date().toISOString(),
-        }
-      );
-      return response as unknown as Game;
-    } catch (error) {
-      console.error("Game creation failed:", error);
-      throw new Error("Failed to create game.");
-    }
-  },
-
-  /**
-   * Get all games for a user
-   */
-  getUserGames: async (_userId: string) => {
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    const storedGames = localStorage.getItem("bingo-games");
-    return storedGames ? JSON.parse(storedGames) : [];
-
-    // APPWRITE INTEGRATION:
-    // try {
-    //   const response = await databases.listDocuments(
-    //     COLLECTIONS.GAMES,
-    //     [Query.equal('userId', userId)]
-    //   );
-    //   return response.documents as Game[];
-    // } catch (error) {
-    //   console.error("Failed to fetch user games:", error);
-    //   throw new Error("Failed to fetch games.");
-    // }
-  },
-
-  /**
-   * Get a game by ID
-   */
-  getGameById: async (gameId: string) => {
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    const storedGames = localStorage.getItem("bingo-games");
-    const games = storedGames ? JSON.parse(storedGames) : [];
-    return games.find((game: Game) => game.id === gameId) || null;
-
-    // APPWRITE INTEGRATION:
-    // try {
-    //   const response = await databases.getDocument(
-    //     COLLECTIONS.GAMES,
-    //     gameId
-    //   );
-    //   return response as unknown as Game;
-    // } catch (error) {
-    //   console.error("Failed to fetch game:", error);
-    //   throw new Error("Failed to fetch game.");
-    // }
-  },
-
-  /**
-   * Get a game by token
-   */
-  getGameByToken: async (token: string) => {
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    const storedGames = localStorage.getItem("bingo-games");
-    const games = storedGames ? JSON.parse(storedGames) : [];
-    return games.find((game: Game) => game.token === token) || null;
-
-    // APPWRITE INTEGRATION:
-    // try {
-    //   const response = await databases.listDocuments(
-    //     COLLECTIONS.GAMES,
-    //     [Query.equal('token', token)]
-    //   );
-    //
-    //   if (response.documents.length > 0) {
-    //     return response.documents[0] as unknown as Game;
-    //   }
-    //   return null;
-    // } catch (error) {
-    //   console.error("Failed to fetch game by token:", error);
-    //   throw new Error("Failed to fetch game.");
-    // }
-  },
-
-  /**
-   * Update a game
-   */
-  updateGame: async (gameId: string, gameData: Partial<Game>) => {
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    const storedGames = localStorage.getItem("bingo-games");
-    const games = storedGames ? JSON.parse(storedGames) : [];
-    const gameIndex = games.findIndex((game: Game) => game.id === gameId);
-
-    if (gameIndex === -1) {
-      throw new Error("Game not found");
+    // Only include cells when explicitly provided
+    if (gameData.cells !== undefined) {
+      const { cellContents, cellsMarked } = serialiseCells(gameData.cells);
+      payload.cellContents = cellContents;
+      payload.cellsMarked = cellsMarked;
     }
 
-    const updatedGame = { ...games[gameIndex], ...gameData };
-    games[gameIndex] = updatedGame;
-    localStorage.setItem("bingo-games", JSON.stringify(games));
-
-    return updatedGame;
-
-    // APPWRITE INTEGRATION:
-    // try {
-    //   const response = await databases.updateDocument(
-    //     COLLECTIONS.GAMES,
-    //     gameId,
-    //     {
-    //       ...gameData,
-    //       updatedAt: new Date().toISOString(),
-    //     }
-    //   );
-    //   return response as unknown as Game;
-    // } catch (error) {
-    //   console.error("Game update failed:", error);
-    //   throw new Error("Failed to update game.");
-    // }
-  },
-
-  /**
-   * Delete a game
-   */
-  deleteGame: async (gameId: string) => {
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    const storedGames = localStorage.getItem("bingo-games");
-    const games = storedGames ? JSON.parse(storedGames) : [];
-    const updatedGames = games.filter((game: Game) => game.id !== gameId);
-    localStorage.setItem("bingo-games", JSON.stringify(updatedGames));
-
-    // APPWRITE INTEGRATION:
-    // try {
-    //   await databases.deleteDocument(
-    //     COLLECTIONS.GAMES,
-    //     gameId
-    //   );
-    //   return true;
-    // } catch (error) {
-    //   console.error("Game deletion failed:", error);
-    //   throw new Error("Failed to delete game.");
-    // }
-  },
-
-  /**
-   * Join a game using a token
-   */
-  joinGame: async (token: string, player: Player) => {
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    const storedGames = localStorage.getItem("bingo-games");
-    const games = storedGames ? JSON.parse(storedGames) : [];
-    const gameIndex = games.findIndex((game: Game) => game.token === token);
-
-    if (gameIndex === -1) {
-      throw new Error("Game not found");
+    // Remove undefined keys so Appwrite doesn't overwrite with null unexpectedly
+    for (const key of Object.keys(payload)) {
+      if (payload[key] === undefined) delete payload[key];
     }
 
-    const game = games[gameIndex];
-    const updatedPlayers = [...(game.players || []), player];
-    const updatedGame = { ...game, players: updatedPlayers };
-    games[gameIndex] = updatedGame;
-    localStorage.setItem("bingo-games", JSON.stringify(games));
+    const doc = await databases.updateDocument(
+      databaseID,
+      collection02ID,
+      gameId,
+      payload
+    );
 
-    return updatedGame;
-
-    // APPWRITE INTEGRATION:
-    // try {
-    //   // This could be implemented as a serverless function in Appwrite
-    //   const response = await functions.createExecution(
-    //     FUNCTIONS.JOIN_GAME,
-    //     JSON.stringify({
-    //       token,
-    //       player,
-    //     })
-    //   );
-    //
-    //   if (response.statusCode === 200) {
-    //     return JSON.parse(response.response) as Game;
-    //   }
-    //   throw new Error("Failed to join game.");
-    // } catch (error) {
-    //   console.error("Failed to join game:", error);
-    //   throw new Error("Failed to join game.");
-    // }
+    return documentToGame(doc);
   },
 
   /**
-   * Check if a player has won
+   * Delete a game document from Appwrite.
+   *
+   * @param gameId - Appwrite document ID.
    */
-  checkWinner: async (
-    gameId: string,
-    _playerId: string,
+  deleteGame: async (gameId: string): Promise<void> => {
+    await databases.deleteDocument(databaseID, collection02ID, gameId);
+  },
+
+  /**
+   * Add a player to an existing game document's `players` array.
+   *
+   * NOTE: This is a client-side merge and does not use the `player` Appwrite
+   * collection (that is task [5] — join-game-server).  Until real-time
+   * multiplayer is implemented the players list is managed here as a JSON
+   * array stored on the game document.
+   *
+   * @param token - Shareable game token.
+   * @param player - Player object to add.
+   * @returns The updated Game.
+   */
+  joinGame: async (token: string, player: Player): Promise<Game> => {
+    const game = await gameService.getGameByToken(token);
+    if (!game) throw new Error("Game not found for token: " + token);
+
+    const updatedPlayers = [...(game.players ?? []), player];
+    return gameService.updateGame(game.id, { players: updatedPlayers });
+  },
+
+  /**
+   * Determine whether the provided set of marked cell indices satisfies any
+   * winning pattern for the given board size.
+   *
+   * This function is **pure** — it does not touch Appwrite or any external
+   * state, making it safe to call on every cell mark.
+   *
+   * @param boardSize - The NxN size of the board (e.g. 5 for a 5×5 board).
+   * @param markedCells - Flat list of marked cell indices.
+   * @returns `{ hasWon, winningPatterns }` where `winningPatterns` is the
+   *   list of index arrays that are fully marked.
+   */
+  checkWinner: (
+    boardSize: number,
     markedCells: number[]
-  ) => {
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    const storedGames = localStorage.getItem("bingo-games");
-    const games = storedGames ? JSON.parse(storedGames) : [];
-    const game = games.find((g: Game) => g.id === gameId);
-
-    if (!game) {
-      throw new Error("Game not found");
-    }
-
-    // Check for winning patterns
-    const winPatterns = getWinPatterns(game.boardSize);
+  ): { hasWon: boolean; winningPatterns: number[][] } => {
+    const markedSet = new Set(markedCells);
     const winningPatterns: number[][] = [];
 
-    for (const pattern of winPatterns) {
-      if (pattern.every((cellIndex) => markedCells.includes(cellIndex))) {
+    for (const pattern of getWinPatterns(boardSize)) {
+      if (pattern.every((idx) => markedSet.has(idx))) {
         winningPatterns.push(pattern);
       }
     }
 
     return { hasWon: winningPatterns.length > 0, winningPatterns };
-
-    // APPWRITE INTEGRATION:
-    // try {
-    //   // This could be implemented as a serverless function in Appwrite
-    //   const response = await functions.createExecution(
-    //     FUNCTIONS.CHECK_WINNER,
-    //     JSON.stringify({
-    //       gameId,
-    //       playerId,
-    //       markedCells,
-    //     })
-    //   );
-    //
-    //   if (response.statusCode === 200) {
-    //     return JSON.parse(response.response) as { hasWon: boolean, winningPatterns: number[][] };
-    //   }
-    //   throw new Error("Failed to check winner.");
-    // } catch (error) {
-    //   console.error("Failed to check winner:", error);
-    //   throw new Error("Failed to check winner.");
-    // }
   },
 };

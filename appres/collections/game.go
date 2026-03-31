@@ -19,14 +19,6 @@ func Game(db *models.Database, colBoardID string) (string, error) {
     attVals := []app.AttributeType{
         {
             Type:        "string",
-            Name:        "id",
-            Size:        100,
-            Required:    true,
-            Array:       false,
-            Encrypt:     false,
-        },
-        {
-            Type:        "string",
             Name:        "name",
             Size:        100,
             Required:    true,
@@ -58,24 +50,10 @@ func Game(db *models.Database, colBoardID string) (string, error) {
             Encrypt:     false,
         },
         {
+            // Set when the game transitions to "playing"; null until then.
             Type:        "datetime",
             Name:        "startTime",
-            Required:    true,
-            Array:       false,
-            Encrypt:     false,
-        },
-        {
-            Type:        "integer",
-            Name:        "winningPatterns",
             Required:    false,
-            Array:       true,
-            Encrypt:     false,
-        },
-        {
-            Type:        "string",
-            Name:        "token",
-            Size:        100,
-            Required:    true,
             Array:       false,
             Encrypt:     false,
         },
@@ -91,6 +69,41 @@ func Game(db *models.Database, colBoardID string) (string, error) {
             Name:        "createdAt",
             Required:    false,
             Array:       false,
+            Encrypt:     false,
+        },
+        {
+            // Shareable game token (optional until host generates one).
+            Type:        "string",
+            Name:        "token",
+            Size:        100,
+            Required:    false,
+            Array:       false,
+            Encrypt:     false,
+        },
+        {
+            // Appwrite user ID of the game host; used to query user's games.
+            Type:        "string",
+            Name:        "userId",
+            Size:        100,
+            Required:    false,
+            Array:       false,
+            Encrypt:     false,
+        },
+        {
+            // Parallel array: content of each cell (index-aligned with cellsMarked).
+            Type:        "string",
+            Name:        "cellContents",
+            Size:        500,
+            Required:    false,
+            Array:       true,
+            Encrypt:     false,
+        },
+        {
+            // Parallel array: marked state of each cell (index-aligned with cellContents).
+            Type:        "boolean",
+            Name:        "cellsMarked",
+            Required:    false,
+            Array:       true,
             Encrypt:     false,
         },
         {

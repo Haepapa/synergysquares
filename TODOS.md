@@ -36,7 +36,7 @@ Each task is designed to be actionable independently (respecting dependencies no
 
 ---
 
-### [1] Wire `game-service.ts` fully to Appwrite
+### ~~[1] Wire `game-service.ts` fully to Appwrite~~ ✅ DONE
 
 **File:** `lib/game-service.ts`
 **Blocks:** [2], [4]
