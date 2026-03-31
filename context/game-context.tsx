@@ -33,18 +33,27 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const [activeGameId, setActiveGameId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuth();
+  // Tracks whether we have ever seen a non-null user (used to distinguish
+  // "initial mount with no user" from "explicit logout").
+  const hadUserRef = useRef(false);
   // Guard against concurrent createGame calls (e.g. React Strict Mode double-invoke)
   const isCreatingRef = useRef(false);
 
   // Reload games whenever the logged-in user changes.
-  // On logout (user === null) wipe local state; on login fetch from Appwrite.
   useEffect(() => {
     if (!user) {
-      setGames([]);
-      setActiveGameId(null);
+      if (hadUserRef.current) {
+        // Explicit logout — wipe games so stale data isn't shown.
+        setGames([]);
+        setActiveGameId(null);
+      }
+      // Initial mount with no user (guest): do nothing — the dashboard will
+      // auto-create an in-memory game via createGame().
       return;
     }
 
+    // User just logged in or page reloaded while authenticated.
+    hadUserRef.current = true;
     setIsLoading(true);
     gameService
       .getUserGames(user.id)
@@ -60,29 +69,58 @@ export function GameProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   /**
-   * Create a new game in Appwrite and add it to local state.
-   * Returns the Appwrite document ID (used immediately to set activeGameId).
-   * Throws if no user is logged in.
+   * Create a new game.
+   *
+   * - **Authenticated users**: game is saved to Appwrite; the Appwrite `$id`
+   *   is used as the game's id.
+   * - **Guests (no user)**: an in-memory game is created with a `local_`
+   *   prefixed id.  It is not persisted and will be lost on page refresh.
+   *
+   * Returns the game id, or an empty string if a creation was already in
+   * flight (React Strict Mode double-invoke guard).
    */
   const createGame = useCallback(async (): Promise<string> => {
-    if (!user) throw new Error("Must be logged in to create a game.");
-    if (isCreatingRef.current) {
-      // A creation is already in flight — return a sentinel so the caller
-      // can detect the no-op and avoid setting a stale activeGameId.
-      return "";
-    }
-
+    if (isCreatingRef.current) return "";
     isCreatingRef.current = true;
+
     try {
       const boardSize = 5;
+      const cells = generateBoardCells(boardSize, [], []);
+
+      if (!user) {
+        // Guest mode: in-memory only, not persisted to Appwrite.
+        const id = `local_${Date.now()}`;
+        const guestGame: Game = {
+          id,
+          name: "New Bingo Game",
+          boardSize,
+          boardColor: "#9333ea",
+          cells,
+          status: "not_started",
+          winningPatterns: [],
+          isHost: true,
+          players: [
+            {
+              id: "guest",
+              name: "You",
+              isHost: true,
+              joinTime: new Date().toISOString(),
+              hasBingo: false,
+            },
+          ],
+        };
+        setGames((prev) => [...prev, guestGame]);
+        return id;
+      }
+
+      // Authenticated: persist to Appwrite.
       const newGame = await gameService.createGame(user.id, {
         name: "New Bingo Game",
         boardSize,
         boardColor: "#9333ea",
-        cells: generateBoardCells(boardSize, [], []),
+        cells,
         isHost: true,
       });
-
       setGames((prev) => [...prev, newGame]);
       return newGame.id;
     } finally {
@@ -91,23 +129,29 @@ export function GameProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   /**
-   * Optimistic update: reflect the change in local state immediately, then
-   * sync to Appwrite in the background.  If the Appwrite write fails, the
-   * local state may diverge — a full refresh will re-sync from the server.
+   * Optimistic update: reflect the change in local state immediately.
+   * For authenticated users, syncs to Appwrite in the background.
+   * Guest games (local_ prefix) are only updated in memory.
    */
-  const updateGame = useCallback((updatedGame: Game) => {
-    setGames((prev) =>
-      prev.map((g) => (g.id === updatedGame.id ? updatedGame : g))
-    );
+  const updateGame = useCallback(
+    (updatedGame: Game) => {
+      setGames((prev) =>
+        prev.map((g) => (g.id === updatedGame.id ? updatedGame : g))
+      );
 
-    gameService.updateGame(updatedGame.id, updatedGame).catch((err) => {
-      console.error("Failed to sync game update to Appwrite:", err);
-    });
-  }, []);
+      if (!user || updatedGame.id.startsWith("local_")) return;
+
+      gameService.updateGame(updatedGame.id, updatedGame).catch((err) => {
+        console.error("Failed to sync game update to Appwrite:", err);
+      });
+    },
+    [user]
+  );
 
   /**
-   * Optimistic delete: remove from local state immediately, then delete from
-   * Appwrite.  Adjusts activeGameId if the active game is being removed.
+   * Optimistic delete: remove from local state immediately.
+   * For authenticated users, deletes from Appwrite in the background.
+   * Guest games (local_ prefix) are only removed from memory.
    */
   const removeGame = useCallback(
     (id: string) => {
@@ -119,22 +163,28 @@ export function GameProvider({ children }: { children: ReactNode }) {
         return updated;
       });
 
+      if (!user || id.startsWith("local_")) return;
+
       gameService.deleteGame(id).catch((err) => {
         console.error("Failed to delete game from Appwrite:", err);
       });
     },
-    [activeGameId]
+    [activeGameId, user]
   );
 
   /**
-   * Look up a game by its shareable token via Appwrite.
-   * Returns null if no game is found.
+   * Look up a game by its shareable token.
+   * For authenticated users, queries Appwrite.
+   * For guests, searches the in-memory game list only.
    */
   const fetchGameByToken = useCallback(
-    (token: string): Promise<Game | null> => {
+    async (token: string): Promise<Game | null> => {
+      if (!user) {
+        return games.find((g) => g.token === token) ?? null;
+      }
       return gameService.getGameByToken(token);
     },
-    []
+    [user, games]
   );
 
   return (

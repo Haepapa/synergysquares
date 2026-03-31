@@ -61,15 +61,17 @@ export default function GameDashboard() {
     }
   }, [createGame, setActiveGameId])
 
-  // Create a default game if none exists (only after Appwrite load completes)
+  // Create a default game if none exists.
+  // Wait for Appwrite load to complete first so we don't create a duplicate
+  // while an existing game list is still being fetched.
   useEffect(() => {
     if (isLoading) return
-    if (games.length === 0 && user) {
+    if (games.length === 0) {
       handleCreateGame()
     } else if (!activeGameId && games.length > 0) {
       setActiveGameId(games[0].id)
     }
-  }, [isLoading, games, activeGameId, user, setActiveGameId, handleCreateGame])
+  }, [isLoading, games, activeGameId, setActiveGameId, handleCreateGame])
 
   const handleRemoveGame = (gameId: string) => {
     setGameToRemove(gameId)
