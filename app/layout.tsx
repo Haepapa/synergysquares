@@ -7,11 +7,29 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Synergy Squares",
+  title: {
+    default: "Synergy Squares",
+    template: "%s | Synergy Squares",
+  },
   description:
     "Create, customize, and play bingo games individually or with others.",
   icons: {
-    icon: "/favicon.ico",
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+  },
+  openGraph: {
+    type: "website",
+    siteName: "Synergy Squares",
+    title: "Synergy Squares — Multiplayer Bingo Generator",
+    description:
+      "Create, customize, and play bingo games individually or with others.",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Synergy Squares — Multiplayer Bingo Generator",
+    description:
+      "Create, customize, and play bingo games individually or with others.",
   },
 };
 
