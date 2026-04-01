@@ -8,7 +8,13 @@ import (
 )
 func Game(db *models.Database, colBoardID string) (string, error) {
 
-    // Create collection(s)
+    // Create collection(s).
+    // NOTE: After creation the collection must be updated to set:
+    //   - documentSecurity: true  (enables per-document permissions)
+    //   - permissions: ["read(\"users\")"]  (allows any logged-in user to
+    //     query by token so the join-by-token flow works cross-user)
+    // The appres library does not currently expose these fields; update via
+    // the Appwrite console or REST API after running this provisioner.
     colGames, err := app.CreateCollection(db.Id, "game")
     if err != nil {
         log.Println("Error creating collection:", err)
