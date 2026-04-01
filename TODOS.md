@@ -250,7 +250,7 @@ Players cannot see each other's cell marks, joins, or game status changes. There
 
 ---
 
-### [9] Add favicon, OG image, and app icons
+### ✅ [9] Add favicon, OG image, and app icons
 
 **Directory:** `public/`
 **Independent**
@@ -282,7 +282,7 @@ export const metadata: Metadata = {
 
 ---
 
-### [10] Complete SEO metadata for all pages
+### ✅ [10] Complete SEO metadata for all pages
 
 **Files:** `app/play/page.tsx`, `app/contact/page.tsx`, `app/privacy/page.tsx`, `app/terms/page.tsx`
 **Independent**
@@ -319,7 +319,7 @@ export const metadata: Metadata = {
 
 ---
 
-### [11] Configure `next.config.ts` for production
+### ✅ [11] Configure `next.config.ts` for production
 
 **File:** `next.config.ts`
 **Independent** — but review before deploying
