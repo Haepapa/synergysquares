@@ -5,7 +5,7 @@ import { useGame } from "@/context/game-context"
 import { toast } from "sonner"
 import type { Game, Cell } from "@/types/game"
 import confetti from "canvas-confetti"
-import { getWinPatterns } from "@/lib/utils"
+import { getWinPatterns } from "@/lib/game-utils"
 import { cn } from "@/lib/utils"
 
 interface GameBoardProps {

@@ -32,11 +32,9 @@ export default function GameSettingsModal({ game, onClose }: GameSettingsModalPr
   const [boardColor, setBoardColor] = useState(game.boardColor || "#9333ea") // Default to purple
   const [cellContent, setCellContent] = useState("")
   const [selectedPreset, setSelectedPreset] = useState("")
-  const [customPresetName, setCustomPresetName] = useState("")
   const [savedPresets, setSavedPresets] = useState<Record<string, string[]>>({})
   const [gameToken, setGameToken] = useState(game.token || "")
   const [isHost, setIsHost] = useState<boolean>(game.isHost !== false)
-  const [_isJoining, _setIsJoining] = useState(false)
   const [isValidToken, setIsValidToken] = useState(false)
   const [showPresetManager, setShowPresetManager] = useState(false)
 
@@ -162,33 +160,6 @@ export default function GameSettingsModal({ game, onClose }: GameSettingsModalPr
     if (presetContent.length > 0) {
       setCellContent(presetContent.join("\n"))
     }
-  }
-
-  const _handleSavePreset = () => {
-    if (!customPresetName.trim()) {
-      toast.error("Missing preset name", {
-        description: "Please provide a name for your custom preset.",
-      })
-      return
-    }
-
-    const contentArray = cellContent.split("\n").filter((item) => item.trim())
-    if (contentArray.length === 0) {
-      toast.error("Missing content", {
-        description: "Please add content to save as a preset.",
-      })
-      return
-    }
-
-    const updatedPresets = {
-      ...savedPresets,
-      [customPresetName]: contentArray,
-    }
-
-    setSavedPresets(updatedPresets)
-    localStorage.setItem("bingo-custom-presets", JSON.stringify(updatedPresets))
-    setSelectedPreset(customPresetName)
-    setCustomPresetName("")
   }
 
   const handleGenerateRandomContent = () => {

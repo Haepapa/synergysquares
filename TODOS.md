@@ -246,20 +246,15 @@ All 3 preset methods use localStorage. Presets are lost if the browser is cleare
 
 ---
 
-### [8] Remove dead code and consolidate duplicates
+### ~~[8] Remove dead code and consolidate duplicates~~ ✅ DONE
 
 **Files:** `lib/appwrite-service.ts`, `lib/utils.ts`, `lib/game-utils.ts`, `components/game-settings-modal.tsx`
-**Independent** — safe to do any time
 
-**Dead code to remove:**
-
-| Location | Item | Action |
-|----------|------|--------|
-| `lib/appwrite-service.ts` line ~187 | `_getWinPatterns()` function | Delete — duplicate of `lib/game-utils.ts` |
-| `lib/utils.ts` | `getWinPatterns()` | Delete — duplicate of `lib/game-utils.ts`; keep only `cn()` |
-| `components/game-settings-modal.tsx` line ~178 | `_handleSavePreset()` | Delete — dead, never called; preset saving is handled by `PresetManager` component |
-
-**After removal:** Update any imports that referenced the deleted functions (run `npm run build` to confirm).
+**What was removed:**
+- `_getWinPatterns()` from `lib/appwrite-service.ts` — duplicate of `lib/game-utils.ts`
+- `getWinPatterns()` from `lib/utils.ts` — duplicate of `lib/game-utils.ts`; `cn()` is the only remaining export
+- `_handleSavePreset()`, `_isJoining`/`_setIsJoining`, and `customPresetName` state from `game-settings-modal.tsx` — all dead/unused
+- Updated `components/game-board.tsx` import from `@/lib/utils` → `@/lib/game-utils` for `getWinPatterns`
 
 ---
 

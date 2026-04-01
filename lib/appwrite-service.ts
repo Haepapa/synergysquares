@@ -180,48 +180,6 @@ export const authService = {
 };
 
 //========================================================================================
-// Game Services
-//========================================================================================
-const _getWinPatterns = (boardSize: number): number[][] => {
-  const patterns: number[][] = [];
-
-  // Rows
-  for (let i = 0; i < boardSize; i++) {
-    const row: number[] = [];
-    for (let j = 0; j < boardSize; j++) {
-      row.push(i * boardSize + j);
-    }
-    patterns.push(row);
-  }
-
-  // Columns
-  for (let j = 0; j < boardSize; j++) {
-    const col: number[] = [];
-    for (let i = 0; i < boardSize; i++) {
-      col.push(i * boardSize + j);
-    }
-    patterns.push(col);
-  }
-
-  // Diagonal (top-left to bottom-right)
-  const diag1: number[] = [];
-  for (let i = 0; i < boardSize; i++) {
-    diag1.push(i * boardSize + i);
-  }
-  patterns.push(diag1);
-
-  // Diagonal (top-right to bottom-left)
-  const diag2: number[] = [];
-  for (let i = 0; i < boardSize; i++) {
-    diag2.push(i * boardSize + (boardSize - 1 - i));
-  }
-  patterns.push(diag2);
-
-  return patterns;
-};
-
-
-//========================================================================================
 // Preset Services
 //========================================================================================
 export const presetService = {
