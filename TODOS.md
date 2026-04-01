@@ -173,7 +173,7 @@ joinGame: async (token: string, playerName: string, userId: string) => {
 
 ---
 
-### [6] Implement real-time multiplayer via Appwrite Realtime
+### ✅ [6] Implement real-time multiplayer via Appwrite Realtime
 
 **File:** New hook `hooks/use-game-realtime.ts` + `context/game-context.tsx`
 **Depends on:** [2], [5]

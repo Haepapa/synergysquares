@@ -9,10 +9,11 @@ import {
   useRef,
   type ReactNode,
 } from "react";
-import type { Game } from "@/types/game";
+import type { Game, Player } from "@/types/game";
 import { useAuth } from "@/context/auth-context";
 import { generateBoardCells } from "@/lib/game-utils";
-import { gameService } from "@/lib/game-service";
+import { gameService, documentToGame } from "@/lib/game-service";
+import { useGameRealtime } from "@/hooks/use-game-realtime";
 
 interface GameContextType {
   games: Game[];
@@ -258,6 +259,41 @@ export function GameProvider({ children }: { children: ReactNode }) {
     },
     []
   );
+
+  // ---------------------------------------------------------------------------
+  // Realtime — sync game and player changes from Appwrite
+  // ---------------------------------------------------------------------------
+
+  const handleGameUpdate = useCallback((doc: Record<string, unknown>) => {
+    const updated = documentToGame(doc);
+    setGames((prev) =>
+      prev.map((g) => (g.id === updated.id ? { ...updated, isHost: g.isHost } : g))
+    );
+  }, []);
+
+  const handlePlayerJoin = useCallback((doc: Record<string, unknown>) => {
+    const newPlayer: Player = {
+      id: String(doc.id ?? ""),
+      name: String(doc.name ?? ""),
+      isHost: Boolean(doc.isHost ?? false),
+      joinTime: String(doc.joinTime ?? new Date().toISOString()),
+      hasBingo: Boolean(doc.hasBingo ?? false),
+    };
+    setGames((prev) =>
+      prev.map((g) => {
+        if (g.id !== activeGameId) return g;
+        const alreadyJoined = g.players?.some((p) => p.id === newPlayer.id);
+        if (alreadyJoined) return g;
+        return { ...g, players: [...(g.players ?? []), newPlayer] };
+      })
+    );
+  }, [activeGameId]);
+
+  useGameRealtime({
+    gameId: activeGameId,
+    onGameUpdate: handleGameUpdate,
+    onPlayerJoin: handlePlayerJoin,
+  });
 
   return (
     <GameContext.Provider

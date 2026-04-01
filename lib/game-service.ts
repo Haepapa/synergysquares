@@ -40,21 +40,24 @@ function deserialiseCells(
 // Document → Game mapper
 // ---------------------------------------------------------------------------
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function documentToGame(doc: Record<string, any>): Game {
+/** @internal — exported for use by the Realtime hook in game-context.tsx */
+export function documentToGame(doc: Record<string, unknown>): Game {
   return {
-    id: doc.$id,
-    userId: doc.userId ?? undefined,
-    name: doc.name,
-    boardSize: doc.boardSize ?? 5,
-    boardColor: doc.boardColor ?? "#9333ea",
-    cells: deserialiseCells(doc.cellContents, doc.cellsMarked),
-    status: doc.status ?? "not_started",
-    startTime: doc.startTime ?? null,
+    id: String(doc.$id ?? ""),
+    userId: (doc.userId as string | undefined) ?? undefined,
+    name: String(doc.name ?? ""),
+    boardSize: (doc.boardSize as number | undefined) ?? 5,
+    boardColor: String(doc.boardColor ?? "#9333ea"),
+    cells: deserialiseCells(
+      doc.cellContents as string[] | undefined,
+      doc.cellsMarked as boolean[] | undefined
+    ),
+    status: (doc.status as Game["status"]) ?? "not_started",
+    startTime: (doc.startTime as string | null | undefined) ?? null,
     winningPatterns: [], // recomputed client-side from marked cells
-    token: doc.token ?? undefined,
-    isHost: doc.isHost ?? false,
-    players: doc.players ?? [],
+    token: (doc.token as string | undefined) ?? undefined,
+    isHost: Boolean(doc.isHost ?? false),
+    players: (doc.players as Game["players"]) ?? [],
   };
 }
 
