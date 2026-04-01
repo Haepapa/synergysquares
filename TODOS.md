@@ -220,29 +220,17 @@ Players cannot see each other's cell marks, joins, or game status changes. There
 
 ---
 
-### [7] Migrate presets from localStorage to Appwrite
+### ~~[7] Migrate presets from localStorage to Appwrite~~ ✅ DONE
 
-**File:** `lib/appwrite-service.ts`, `components/preset-manager.tsx`
-**Independent** (no dependencies on [1]–[6])
+**Files:** `lib/preset-service.ts` (new), `components/preset-manager.tsx`, `lib/appwrite-config.ts`, `appres/collections/presets.go` (new)
 
-**Problem:**
-All 3 preset methods use localStorage. Presets are lost if the browser is cleared and don't sync across devices.
-
-**Functions to fix in `lib/appwrite-service.ts`:**
-
-| Function | Current | Fix |
-|----------|---------|-----|
-| `getPresets(userId)` | localStorage | `databases.listDocuments(databaseID, presetsCollectionID, [Query.equal('userId', userId)])` |
-| `savePreset(userId, preset)` | localStorage | `databases.createDocument(...)` |
-| `deletePreset(userId, presetId)` | localStorage | `databases.deleteDocument(...)` |
-
-**⚠️ Check first:** The `appres/collections/` directory does not appear to define a `presets` collection. Before implementing, either:
-- Add a `presets.go` collection file and re-run `appres/main.go`, **OR**
-- Create the collection manually in the Appwrite console with attributes: `userId` (string), `name` (string), `content` (string array)
-
-**Notes:**
-- The commented-out Appwrite code is already in `lib/appwrite-service.ts` — primarily needs uncommenting and a collection ID env var added (e.g. `NEXT_PUBLIC_APPWRITE_COLLECTION03ID`)
-- `preset-manager.tsx` calls the service methods correctly — no UI changes needed, only the service layer
+**What was done:**
+1. Created `presets` Appwrite collection (`69cc93bdd2063dea5ac2`) with attributes: `userId`, `name`, `content` (string[]), `createdAt`, `updatedAt`; `idx_userId` index; `documentSecurity: true`; per-user `read/update/delete` permissions per document
+2. Added `NEXT_PUBLIC_APPWRITE_COLLECTION03ID` to `.env.local` and exported `collection03ID` from `appwrite-config.ts`
+3. Created `lib/preset-service.ts` with `getPresets`, `createPreset`, `updatePreset`, `deletePreset` — all backed by Appwrite
+4. Rewrote `components/preset-manager.tsx` to use `presetService` — removed all localStorage code and commented-out stubs (saved ~350 → 298 lines)
+5. Added `appres/collections/presets.go` for future re-provisioning
+6. Added 13 tests in `__tests__/preset-service.test.ts` (70 total passing)
 
 ---
 

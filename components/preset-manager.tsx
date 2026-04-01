@@ -20,8 +20,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Edit, Trash2, Plus, Save, X, FileText } from "lucide-react"
+import { presetService } from "@/lib/preset-service"
 
-// Define the preset type
 export interface Preset {
   id: string
   name: string
@@ -47,52 +47,22 @@ export default function PresetManager({ open, onClose, onSelectPreset }: PresetM
   const [presetName, setPresetName] = useState("")
   const [presetContent, setPresetContent] = useState("")
 
-  // Fetch presets when component mounts
   useEffect(() => {
     if (open && user) {
       fetchPresets()
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, user])
 
   const fetchPresets = async () => {
+    if (!user) return
     setLoading(true)
     try {
-      // This would be replaced with actual Appwrite integration
-      // For now, we'll use localStorage as a placeholder
-
-      /* 
-      // Appwrite integration would look like this:
-      import { Client, Databases, Query } from "appwrite"
-      
-      const client = new Client()
-        .setEndpoint('https://cloud.appwrite.io/v1')
-        .setProject('your-project-id')
-      
-      const databases = new Databases(client)
-      
-      const response = await databases.listDocuments(
-        'your-database-id',
-        'presets',
-        [Query.equal('userId', user.id)]
-      )
-      
-      setPresets(response.documents as Preset[])
-      */
-
-      // For demo purposes, we'll use localStorage
-      const storedPresets = localStorage.getItem("bingo-user-presets")
-      const userPresets = storedPresets ? JSON.parse(storedPresets) : {}
-
-      if (user && user.id in userPresets) {
-        setPresets(userPresets[user.id])
-      } else {
-        setPresets([])
-      }
+      const fetched = await presetService.getPresets(user.id)
+      setPresets(fetched)
     } catch (error) {
       console.error("Failed to fetch presets:", error)
-      toast.error("Failed to load presets", {
-        description: "Please try again later.",
-      })
+      toast.error("Failed to load presets", { description: "Please try again later." })
     } finally {
       setLoading(false)
     }
@@ -113,11 +83,12 @@ export default function PresetManager({ open, onClose, onSelectPreset }: PresetM
   }
 
   const handleSavePreset = async () => {
+    if (!user) return
+
     if (!presetName.trim()) {
       toast.error("Preset name is required")
       return
     }
-
     if (!presetContent.trim()) {
       toast.error("Preset content is required")
       return
@@ -134,123 +105,31 @@ export default function PresetManager({ open, onClose, onSelectPreset }: PresetM
     }
 
     try {
-      const now = new Date().toISOString()
-
       if (editingPreset) {
-        // Update existing preset
-        const updatedPreset: Preset = {
-          ...editingPreset,
-          name: presetName,
-          content: contentArray,
-          updatedAt: now,
-        }
-
-        /* 
-        // Appwrite integration for updating:
-        await databases.updateDocument(
-          'your-database-id',
-          'presets',
-          editingPreset.id,
-          {
-            name: presetName,
-            content: contentArray,
-            updatedAt: now
-          }
-        )
-        */
-
-        // For demo purposes, update in localStorage
-        const updatedPresets = presets.map((p) => (p.id === editingPreset.id ? updatedPreset : p))
-
-        setPresets(updatedPresets)
-        savePresetsToLocalStorage(updatedPresets)
-
-        // Remove this toast - not a key milestone
-        // toast.success("Preset updated successfully")
+        const updated = await presetService.updatePreset(editingPreset.id, presetName, contentArray)
+        setPresets((prev) => prev.map((p) => (p.id === editingPreset.id ? updated : p)))
       } else {
-        // Create new preset
-        const newPreset: Preset = {
-          id: `preset_${Date.now()}`,
-          name: presetName,
-          content: contentArray,
-          userId: user?.id || "anonymous",
-          createdAt: now,
-          updatedAt: now,
-        }
-
-        /* 
-        // Appwrite integration for creating:
-        const response = await databases.createDocument(
-          'your-database-id',
-          'presets',
-          'unique()',
-          {
-            name: presetName,
-            content: contentArray,
-            userId: user.id,
-            createdAt: now,
-            updatedAt: now
-          }
-        )
-        
-        const newPreset = response as Preset
-        */
-
-        // For demo purposes, save to localStorage
-        const updatedPresets = [...presets, newPreset]
-        setPresets(updatedPresets)
-        savePresetsToLocalStorage(updatedPresets)
-
-        // Keep this toast as it's a new creation
+        const created = await presetService.createPreset(user.id, presetName, contentArray)
+        setPresets((prev) => [...prev, created])
         toast.success("Preset created successfully")
       }
-
       setShowEditDialog(false)
     } catch (error) {
       console.error("Failed to save preset:", error)
-      toast.error("Failed to save preset", {
-        description: "Please try again later.",
-      })
+      toast.error("Failed to save preset", { description: "Please try again later." })
     }
   }
 
   const handleDeletePreset = async () => {
     if (!presetToDelete) return
-
     try {
-      /* 
-      // Appwrite integration for deleting:
-      await databases.deleteDocument(
-        'your-database-id',
-        'presets',
-        presetToDelete
-      )
-      */
-
-      // For demo purposes, remove from localStorage
-      const updatedPresets = presets.filter((p) => p.id !== presetToDelete)
-      setPresets(updatedPresets)
-      savePresetsToLocalStorage(updatedPresets)
-
-      // Remove this toast - not a key milestone
-      // toast.success("Preset deleted successfully")
+      await presetService.deletePreset(presetToDelete)
+      setPresets((prev) => prev.filter((p) => p.id !== presetToDelete))
       setPresetToDelete(null)
     } catch (error) {
       console.error("Failed to delete preset:", error)
-      toast.error("Failed to delete preset", {
-        description: "Please try again later.",
-      })
+      toast.error("Failed to delete preset", { description: "Please try again later." })
     }
-  }
-
-  const savePresetsToLocalStorage = (updatedPresets: Preset[]) => {
-    if (!user) return
-
-    const storedPresets = localStorage.getItem("bingo-user-presets")
-    const allPresets = storedPresets ? JSON.parse(storedPresets) : {}
-
-    allPresets[user.id] = updatedPresets
-    localStorage.setItem("bingo-user-presets", JSON.stringify(allPresets))
   }
 
   const handleSelectPreset = (preset: Preset) => {
@@ -271,11 +150,7 @@ export default function PresetManager({ open, onClose, onSelectPreset }: PresetM
 
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-medium">Your Presets</h3>
-            <Button
-              onClick={handleCreatePreset}
-              className={onSelectPreset ? "bg-accent hover:bg-accent/90" : "bg-accent hover:bg-accent/90"}
-              size={onSelectPreset ? "sm" : "default"}
-            >
+            <Button onClick={handleCreatePreset} className="bg-accent hover:bg-accent/90" size={onSelectPreset ? "sm" : "default"}>
               <Plus className="mr-2 h-4 w-4" /> {onSelectPreset ? "New Preset" : "Create New Preset"}
             </Button>
           </div>
@@ -322,10 +197,7 @@ export default function PresetManager({ open, onClose, onSelectPreset }: PresetM
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleEditPreset(preset)
-                            }}
+                            onClick={(e) => { e.stopPropagation(); handleEditPreset(preset) }}
                             className="h-8 w-8"
                           >
                             <Edit className="h-4 w-4" />
@@ -334,10 +206,7 @@ export default function PresetManager({ open, onClose, onSelectPreset }: PresetM
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setPresetToDelete(preset.id)
-                            }}
+                            onClick={(e) => { e.stopPropagation(); setPresetToDelete(preset.id) }}
                             className="h-8 w-8 text-destructive"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -358,7 +227,6 @@ export default function PresetManager({ open, onClose, onSelectPreset }: PresetM
         </DialogContent>
       </Dialog>
 
-      {/* Edit/Create Preset Dialog */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
@@ -380,7 +248,6 @@ export default function PresetManager({ open, onClose, onSelectPreset }: PresetM
                 placeholder="Enter a name for your preset"
               />
             </div>
-
             <div className="space-y-2">
               <Label htmlFor="preset-content">Content (one item per line)</Label>
               <Textarea
@@ -407,7 +274,6 @@ export default function PresetManager({ open, onClose, onSelectPreset }: PresetM
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!presetToDelete} onOpenChange={(open) => !open && setPresetToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
