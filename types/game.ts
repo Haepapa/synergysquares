@@ -13,6 +13,8 @@ export interface Player {
 
 export interface Game {
   id: string
+  /** Appwrite user ID of the game owner. Populated when loaded from Appwrite. */
+  userId?: string
   name: string
   boardSize: number
   boardColor: string

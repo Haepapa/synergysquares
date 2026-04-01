@@ -44,6 +44,7 @@ function deserialiseCells(
 function documentToGame(doc: Record<string, any>): Game {
   return {
     id: doc.$id,
+    userId: doc.userId ?? undefined,
     name: doc.name,
     boardSize: doc.boardSize ?? 5,
     boardColor: doc.boardColor ?? "#9333ea",
@@ -170,11 +171,25 @@ export const gameService = {
       if (payload[key] === undefined) delete payload[key];
     }
 
+    // When we know the owner, repair document permissions so that:
+    // - anyone can read (required for token-based join to work)
+    // - only the owner can update or delete
+    // This also retroactively fixes documents created before the permissions
+    // fix was introduced.
+    const permissions = gameData.userId
+      ? [
+          Permission.read(Role.any()),
+          Permission.update(Role.user(gameData.userId)),
+          Permission.delete(Role.user(gameData.userId)),
+        ]
+      : undefined;
+
     const doc = await databases.updateDocument(
       databaseID,
       collection02ID,
       gameId,
-      payload
+      payload,
+      permissions
     );
 
     return documentToGame(doc);
