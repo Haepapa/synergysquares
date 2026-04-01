@@ -401,6 +401,16 @@ export default function GameSettingsModal({ game, onClose }: GameSettingsModalPr
             </TabsContent>
 
             <TabsContent value="multiplayer" className="space-y-4">
+              {!user ? (
+                <div className="flex flex-col items-center gap-3 py-6 text-center">
+                  <p className="text-sm font-medium">Sign in to use multiplayer</p>
+                  <p className="text-sm text-muted-foreground">
+                    Multiplayer requires an account so your game can be found by other players.
+                    Guest games exist only in your browser and cannot be shared.
+                  </p>
+                </div>
+              ) : (
+                <>
               {isHost ? (
                 <div className="space-y-2">
                   <Label htmlFor="game-token">Game Token (to share with others)</Label>
@@ -417,6 +427,11 @@ export default function GameSettingsModal({ game, onClose }: GameSettingsModalPr
                       Generate
                     </Button>
                   </div>
+                  {gameToken && (
+                    <p className="text-xs text-muted-foreground">
+                      Click &quot;Apply Settings&quot; below to save this token before sharing it.
+                    </p>
+                  )}
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -457,12 +472,14 @@ export default function GameSettingsModal({ game, onClose }: GameSettingsModalPr
               <div className="p-4 border rounded-md bg-muted">
                 <h3 className="font-medium">How Multiplayer Works</h3>
                 <ul className="mt-2 ml-5 text-sm list-disc text-muted-foreground">
-                  <li>As a host: Generate a token and share it with others to join your game</li>
+                  <li>As a host: Generate a token, click Apply Settings, then share the token</li>
                   <li>As a player: Enter a token you received to join someone else&apos;s game</li>
                   <li>All players will see the same board and can mark cells independently</li>
                   <li>The host can see all players and remove them if needed</li>
                 </ul>
               </div>
+                </>
+              )}
             </TabsContent>
           </Tabs>
 
