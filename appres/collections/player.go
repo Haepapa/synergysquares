@@ -8,7 +8,12 @@ import (
 )
 func Player(db *models.Database, colBoardID string, colGameID string) (string, error) {
 
-    // Create collection(s)
+    // Create collection(s).
+    // NOTE: After creation the collection must be updated to set:
+    //   - documentSecurity: true  (enables per-document permissions)
+    //   - permissions: ["read(\"users\")", "create(\"users\")"]
+    //     read  → allows the host to list players for their game
+    //     create → allows any logged-in user to create a player record on join
     colPlayer, err := app.CreateCollection(db.Id, "player")
     if err != nil {
         return "", err

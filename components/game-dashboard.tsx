@@ -54,10 +54,15 @@ export default function GameDashboard() {
   const [showAccountMenu, setShowAccountMenu] = useState(false)
 
   const handleCreateGame = useCallback(async () => {
-    const newGameId = await createGame()
-    if (newGameId) {
-      setActiveGameId(newGameId)
-      setShowSettings(true)
+    try {
+      const newGameId = await createGame()
+      if (newGameId) {
+        setActiveGameId(newGameId)
+        setShowSettings(true)
+      }
+    } catch (err) {
+      console.error("Failed to create game:", err)
+      toast.error("Could not create game. Please try again.")
     }
   }, [createGame, setActiveGameId])
 

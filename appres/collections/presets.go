@@ -12,8 +12,9 @@ import (
 // After creation the collection must be configured via the Appwrite console
 // or REST API:
 //   - documentSecurity: true   (per-document permissions take effect)
-//   - permissions: []          (no collection-level public read; each document
-//                               uses Permission.read(Role.user(userId)))
+//   - permissions: ["read(\"users\")", "create(\"users\")"]
+//     read  → allows queries across users (e.g. shared preset lookup)
+//     create → allows any logged-in user to create preset documents
 func Presets(db *models.Database) (string, error) {
 
 	colPresets, err := app.CreateCollection(db.Id, "presets")
