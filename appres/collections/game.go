@@ -6,122 +6,92 @@ import (
 	app "github.com/Haepapa/appres"
 	"github.com/appwrite/sdk-for-go/models"
 )
-func Game(db *models.Database, colBoardID string) (string, error) {
+func Game(db *models.Database) (string, error) {
 
-    // Create collection(s).
-    // NOTE: After creation the collection must be updated to set:
-    //   - documentSecurity: true  (enables per-document permissions)
+    // Create collection.
+    // After creation, set via Appwrite console or REST API:
+    //   - documentSecurity: true
     //   - permissions: ["read(\"users\")", "create(\"users\")"]
-    //     read  → allows any logged-in user to query by token (join flow)
-    //     create → allows any logged-in user to create game documents
-    // The appres library does not currently expose these fields; update via
-    // the Appwrite console or REST API after running this provisioner.
+    //
+    // NOTE: Do NOT add relationship attributes to this collection via the
+    // provisioner — Appwrite 1.7.4 has a bug where relationship attributes
+    // can silently corrupt the underlying MariaDB schema, causing all
+    // subsequent createDocument calls to fail with 400/500 errors.
     colGames, err := app.CreateCollection(db.Id, "game")
     if err != nil {
         log.Println("Error creating collection:", err)
         return "", err
     }
 
-    // Create attributes in collection(s)
     attVals := []app.AttributeType{
         {
-            Type:        "string",
-            Name:        "name",
-            Size:        100,
-            Required:    true,
-            Array:       false,
-            Encrypt:     false,
+            Type:     "string",
+            Name:     "name",
+            Size:     200,
+            Required: true,
         },
         {
-            Type:        "integer",
-            Name:        "boardSize",
-            Required:    false,
-            Array:       false,
-            Encrypt:     false,
+            Type:     "string",
+            Name:     "status",
+            Size:     50,
+            Required: true,
         },
         {
-            Type:        "string",
-            Name:        "boardColor",
-            Size:        100,
-            Required:    false,
-            Default:     "",
-            Array:       false,
-            Encrypt:     false,
+            Type:     "string",
+            Name:     "boardColor",
+            Size:     20,
+            Required: false,
+            Default:  "#9333ea",
         },
         {
-            Type:        "string",
-            Name:        "status",
-            Size:        100,
-            Required:    true,
-            Array:       false,
-            Encrypt:     false,
+            Type:     "string",
+            Name:     "userId",
+            Size:     100,
+            Required: false,
         },
         {
-            // Set when the game transitions to "playing"; null until then.
-            Type:        "datetime",
-            Name:        "startTime",
-            Required:    false,
-            Array:       false,
-            Encrypt:     false,
+            // Shareable join token; empty string until host generates one.
+            Type:     "string",
+            Name:     "token",
+            Size:     100,
+            Required: false,
+            Default:  "",
         },
         {
-            Type:        "boolean",
-            Name:        "isHost",
-            Required:    false,
-            Array:       false,
-            Encrypt:     false,
+            Type:     "integer",
+            Name:     "boardSize",
+            Required: false,
         },
         {
-            Type:        "datetime",
-            Name:        "createdAt",
-            Required:    false,
-            Array:       false,
-            Encrypt:     false,
+            Type:     "boolean",
+            Name:     "isHost",
+            Required: false,
         },
         {
-            // Shareable game token (optional until host generates one).
-            Type:        "string",
-            Name:        "token",
-            Size:        100,
-            Required:    false,
-            Array:       false,
-            Encrypt:     false,
+            Type:     "datetime",
+            Name:     "createdAt",
+            Required: false,
         },
         {
-            // Appwrite user ID of the game host; used to query user's games.
-            Type:        "string",
-            Name:        "userId",
-            Size:        100,
-            Required:    false,
-            Array:       false,
-            Encrypt:     false,
+            // Null until game transitions to "playing".
+            Type:     "datetime",
+            Name:     "startTime",
+            Required: false,
         },
         {
             // Parallel array: content of each cell (index-aligned with cellsMarked).
-            Type:        "string",
-            Name:        "cellContents",
-            Size:        500,
-            Required:    false,
-            Array:       true,
-            Encrypt:     false,
+            Type:     "string",
+            Name:     "cellContents",
+            Size:     500,
+            Required: false,
+            Array:    true,
         },
         {
             // Parallel array: marked state of each cell (index-aligned with cellContents).
-            Type:        "boolean",
-            Name:        "cellsMarked",
-            Required:    false,
-            Array:       true,
-            Encrypt:     false,
-        },
-        {
-            Type:        "relationship",
-            TwoWay:      true,
-            RelatedCollectionID: colBoardID,
-            RelationshipType: "oneToMany",
-            OnDelete:   "cascade",
-            Name:        "boards",
-            TwoWayKey:   "game",
-
+            Type:     "boolean",
+            Name:     "cellsMarked",
+            Required: false,
+            Array:    true,
         },
     }
 
@@ -132,5 +102,8 @@ func Game(db *models.Database, colBoardID string) (string, error) {
             return "", err
         }
     }
+    // Also create indexes:
+    //   idx_userId: key index on userId (for getUserGames queries)
+    //   idx_token:  key index on token  (for getGameByToken queries)
     return colGames.Id, nil
 }

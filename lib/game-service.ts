@@ -88,12 +88,11 @@ export const gameService = {
         userId,
         cellContents,
         cellsMarked,
-        token: gameData.token ?? null,
+        token: gameData.token ?? "",
         isHost: true,
+        startTime: null,
         createdAt: new Date().toISOString(),
       },
-      // Any authenticated user can read (needed for token-based game lookup).
-      // Only the creating user can update or delete.
       [
         Permission.read(Role.any()),
         Permission.update(Role.user(userId)),
@@ -151,14 +150,13 @@ export const gameService = {
    * @returns The updated Game.
    */
   updateGame: async (gameId: string, gameData: Partial<Game>): Promise<Game> => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const payload: Record<string, any> = {
+    const payload: Record<string, unknown> = {
       name: gameData.name,
       boardSize: gameData.boardSize,
       boardColor: gameData.boardColor,
       status: gameData.status,
       startTime: gameData.startTime ?? null,
-      token: gameData.token ?? null,
+      token: gameData.token ?? "",
       isHost: gameData.isHost,
     };
 
