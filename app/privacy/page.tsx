@@ -7,8 +7,8 @@ import SynergySquaresLogo from "@/components/synergy-squares-logo"
 import { Home } from "lucide-react"
 
 export const metadata: Metadata = {
-  title: "Privacy Policy - Synergy Squares",
-  description: "Privacy Policy for Synergy Squares, the ultimate bingo game for teams and events.",
+  title: "Privacy Policy",
+  description: "How Synergy Squares collects and uses your data.",
   keywords: [
     "privacy policy",
     "data protection",

@@ -8,7 +8,7 @@ import { Home } from "lucide-react"
 import ContactForm from "@/components/contact-form"
 
 export const metadata: Metadata = {
-  title: "Contact Us - Synergy Squares",
+  title: "Contact Us",
   description: "Get in touch with the Synergy Squares team for support, feedback, or business inquiries.",
   keywords: [
     "contact",

@@ -7,8 +7,8 @@ import SynergySquaresLogo from "@/components/synergy-squares-logo"
 import { Home } from "lucide-react"
 
 export const metadata: Metadata = {
-  title: "Terms of Service - Synergy Squares",
-  description: "Terms of Service for Synergy Squares, the ultimate bingo game for teams and events.",
+  title: "Terms of Service",
+  description: "Terms and conditions for using Synergy Squares.",
   keywords: ["terms of service", "legal", "bingo game", "synergy squares", "user agreement", "terms and conditions"],
 }
 
