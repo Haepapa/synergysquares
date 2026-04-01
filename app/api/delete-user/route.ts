@@ -10,13 +10,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Missing userId" }, { status: 400 });
   }
 
-  // Create Appwrite Client just like the SDK example
   const client = new Client()
-    .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!) // e.g. https://cloud.appwrite.io/v1
-    .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT!) // your project ID
+    .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
+    .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT!)
     .setKey(process.env.NEXT_PUBLIC_APPWRITE_USER_MGMT!);
 
-  client.config.selfSigned = true;
+  // Allow self-signed TLS only in local development (e.g. appwrite.localhost).
+  // Never set in production — a valid certificate must be present.
+  if (process.env.NODE_ENV !== "production") {
+    client.config.selfSigned = true;
+  }
 
   const users = new Users(client);
 

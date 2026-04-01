@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"log"
 	"net/http"
+	"os"
 
 	col "appres/collections"
 
@@ -11,8 +12,11 @@ import (
 )
 
 func main() {
-    // Suppress insecure warning (if using self-signed certificates)
-    http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+    // Allow self-signed TLS only when APPWRITE_SELF_SIGNED=true (local dev).
+    // Remove or leave unset in production to enforce proper certificate validation.
+    if os.Getenv("APPWRITE_SELF_SIGNED") == "true" {
+        http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true} //nolint:gosec
+    }
 
     // Initialize Appwrite client
     app.Utils()

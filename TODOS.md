@@ -380,7 +380,7 @@ NEXT_PUBLIC_APPWRITE_USER_MGMT=<api-key-with-users-scope>
 
 ---
 
-### [13] Remove self-signed TLS workarounds
+### ✅ [13] Remove self-signed TLS workarounds
 
 **Files:** `app/api/delete-user/route.ts`, `appres/main.go`
 **Depends on:** [12] (needs a properly TLS-certified Appwrite instance)
