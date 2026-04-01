@@ -129,7 +129,7 @@ import { Query } from 'appwrite';
 
 ---
 
-### [5] Implement server-side `joinGame()`
+### ✅ [5] Implement server-side `joinGame()`
 
 **File:** `lib/game-service.ts`
 **Depends on:** [4]

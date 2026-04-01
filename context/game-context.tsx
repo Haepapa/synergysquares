@@ -224,19 +224,26 @@ export function GameProvider({ children }: { children: ReactNode }) {
       const foundGame = await gameService.getGameByToken(token);
       if (!foundGame) return null;
 
+      const playerObj = {
+        id: playerId,
+        name: playerName,
+        isHost: false,
+        joinTime: new Date().toISOString(),
+        hasBingo: false,
+      };
+
+      // Persist a player document in Appwrite (task [5] — join-game-server).
+      // This is best-effort: a failure here should not prevent the local join.
+      try {
+        await gameService.joinGame(token, playerObj);
+      } catch (err) {
+        console.warn("joinGame: could not persist player document", err);
+      }
+
       const joinedGame: Game = {
         ...foundGame,
         isHost: false,
-        players: [
-          ...(foundGame.players ?? []),
-          {
-            id: playerId,
-            name: playerName,
-            isHost: false,
-            joinTime: new Date().toISOString(),
-            hasBingo: false,
-          },
-        ],
+        players: [...(foundGame.players ?? []), playerObj],
       };
 
       setGames((prev) => {

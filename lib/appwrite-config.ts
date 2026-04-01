@@ -13,6 +13,8 @@ export const collection01ID = process.env.NEXT_PUBLIC_APPWRITE_COLLECTION01ID ??
 export const collection02ID = process.env.NEXT_PUBLIC_APPWRITE_COLLECTION02ID ?? "";
 /** presets collection */
 export const collection03ID = process.env.NEXT_PUBLIC_APPWRITE_COLLECTION03ID ?? "";
+/** player collection */
+export const collection04ID = process.env.NEXT_PUBLIC_APPWRITE_COLLECTION04ID ?? "";
 /** Exported for Appwrite Realtime subscriptions (see task [6] — realtime-multiplayer) */
 export const client_ = client;
 export const account = new Account(client);

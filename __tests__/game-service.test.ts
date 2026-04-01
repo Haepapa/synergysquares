@@ -18,6 +18,7 @@ import { describe, it, expect, vi } from "vitest";
 vi.mock("@/lib/appwrite-config", () => ({
   databaseID: "test-db",
   collection02ID: "test-games",
+  collection04ID: "test-players",
   client_: {},
   account: {},
   databases: {
@@ -254,5 +255,75 @@ describe("gameService.checkWinner", () => {
       const result = gameService.checkWinner(SIZE, [0, 1, 2, 3, 4, 5, 6, 7]);
       expect(result.hasWon).toBe(false);
     });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// joinGame — persists a player document to the player collection
+// ---------------------------------------------------------------------------
+
+import { beforeEach } from "vitest";
+import * as appwriteConfig from "@/lib/appwrite-config";
+
+describe("gameService.joinGame", () => {
+  const mockGame = {
+    $id: "game-123",
+    name: "Test Game",
+    boardSize: 5,
+    boardColor: "#ffffff",
+    cellContents: [],
+    cellsMarked: [],
+    status: "not_started",
+    winningPatterns: JSON.stringify([]),
+    token: "TOKEN-ABC",
+    userId: "host-user",
+  };
+
+  const mockPlayer = {
+    id: "user-abc",
+    name: "Alice",
+    isHost: false as const,
+    joinTime: "2024-01-01T00:00:00.000Z",
+    hasBingo: false,
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    (appwriteConfig.databases.listDocuments as ReturnType<typeof vi.fn>).mockResolvedValue({
+      documents: [mockGame],
+    });
+    (appwriteConfig.databases.createDocument as ReturnType<typeof vi.fn>).mockResolvedValue({
+      $id: "player-doc-1",
+    });
+  });
+
+  it("creates a player document in the player collection", async () => {
+    await gameService.joinGame("TOKEN-ABC", mockPlayer);
+
+    const calls = (appwriteConfig.databases.createDocument as ReturnType<typeof vi.fn>).mock.calls;
+    expect(calls).toHaveLength(1);
+    const [dbId, colId, , data] = calls[0];
+    expect(dbId).toBe("test-db");
+    expect(colId).toBe("test-players");
+    expect(data.id).toBe("user-abc");
+    expect(data.name).toBe("Alice");
+    expect(data.isHost).toBe(false);
+    expect(data.hasBingo).toBe(false);
+    expect(data.gameId).toBe("game-123");
+  });
+
+  it("returns the game after creating the player document", async () => {
+    const result = await gameService.joinGame("TOKEN-ABC", mockPlayer);
+    expect(result.id).toBe("game-123");
+    expect(result.token).toBe("TOKEN-ABC");
+  });
+
+  it("throws when the token is not found", async () => {
+    (appwriteConfig.databases.listDocuments as ReturnType<typeof vi.fn>).mockResolvedValue({
+      documents: [],
+    });
+    await expect(gameService.joinGame("BAD-TOKEN", mockPlayer)).rejects.toThrow(
+      "Game not found for token: BAD-TOKEN"
+    );
   });
 });

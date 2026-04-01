@@ -1,7 +1,7 @@
 import { Query, Permission, Role } from "appwrite";
 import type { Cell, Game, Player } from "@/types/game";
 import { getWinPatterns } from "@/lib/game-utils";
-import { databases, databaseID, collection02ID } from "./appwrite-config";
+import { databases, databaseID, collection02ID, collection04ID } from "./appwrite-config";
 
 // ---------------------------------------------------------------------------
 // Helpers — serialise/deserialise Cell[] ↔ Appwrite parallel arrays
@@ -216,12 +216,50 @@ export const gameService = {
    * @param player - Player object to add.
    * @returns The updated Game.
    */
+  /**
+   * Persist a player document in the `player` Appwrite collection and return
+   * the game the player has joined.
+   *
+   * The joiner does **not** write to the host's game document (they lack the
+   * necessary permission).  Instead a dedicated `player` document is created
+   * with a `gameId` field so the host can query "who has joined my game" via
+   * Appwrite Realtime (task [6]).
+   *
+   * Per-player permissions: any authenticated user can read the document;
+   * the player themselves can update/delete their own record.
+   *
+   * @param token - Shareable game token.
+   * @param player - Player object to persist (must include `id`).
+   * @returns The game the player joined.
+   */
   joinGame: async (token: string, player: Player): Promise<Game> => {
     const game = await gameService.getGameByToken(token);
     if (!game) throw new Error("Game not found for token: " + token);
 
-    const updatedPlayers = [...(game.players ?? []), player];
-    return gameService.updateGame(game.id, { players: updatedPlayers });
+    const playerPerms = player.id
+      ? [
+          Permission.read(Role.users()),
+          Permission.update(Role.user(player.id)),
+          Permission.delete(Role.user(player.id)),
+        ]
+      : [Permission.read(Role.users())];
+
+    await databases.createDocument(
+      databaseID,
+      collection04ID,
+      "unique()",
+      {
+        id: player.id,
+        name: player.name,
+        isHost: false,
+        joinTime: player.joinTime,
+        hasBingo: false,
+        gameId: game.id,
+      },
+      playerPerms,
+    );
+
+    return game;
   },
 
   /**

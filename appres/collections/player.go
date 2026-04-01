@@ -55,6 +55,14 @@ func Player(db *models.Database, colBoardID string, colGameID string) (string, e
             Encrypt:     false,
         },
         {
+            Type:        "string",
+            Name:        "gameId",
+            Size:        36,
+            Required:    false,
+            Array:       false,
+            Encrypt:     false,
+        },
+        {
             Type:        "relationship",
             TwoWay:      true,
             RelatedCollectionID: colBoardID,
