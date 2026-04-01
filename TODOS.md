@@ -459,3 +459,24 @@ Two files disable TLS verification — these are local-dev hacks that must not r
 | `player` | `64e5820e28c6980fbd57` | Players in a game |
 
 > ⚠️ A `presets` collection does not yet exist — required for task [7].
+
+---
+
+## 🐛 Known Issues to Investigate
+
+### [BUG-1] Token join flow not working end-to-end
+
+**Symptom:** The Join button remains disabled even when a valid token from another user's hosted game is entered.
+
+**Investigation so far:**
+- Appwrite `documentSecurity` was `false` — fixed (set to `true`)
+- Collection `$permissions` was empty — fixed (added `read("users")`)
+- Per-document `Permission.read(Role.any())` was missing on old docs — fixed (added to `createGame` and `updateGame`)
+- Multiplayer tab now correctly gates behind login with a clear message for guests
+- Root cause suspected: may require both users to have accepted the self-signed TLS cert at `https://appwrite.localhost` in their browser; OR a timing/state issue where the token is not flushed to Appwrite before the joiner queries
+
+**Likely next steps:**
+1. Confirm both test accounts have visited `https://appwrite.localhost` and accepted the cert
+2. Add temporary `console.log` in `validateToken` to inspect the Appwrite response and any error in the browser console
+3. Check the Network tab in DevTools to confirm the `listDocuments` request is being made and what it returns
+4. Consider adding a loading spinner to the token input so the user can see validation is in progress
